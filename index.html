@@ -1000,22 +1000,22 @@ window.hideLoading = () => {
     }
   };
 
-  // --- TẢI DỮ LIỆU TỪ CLOUD ---
   window.syncShiftsFromCloud = async () => {
     if (!auth.currentUser) return;
     try {
         const userRef = doc(db, "users", auth.currentUser.uid);
         const docSnap = await getDoc(userRef);
+        
         if (docSnap.exists()) {
             const cloudData = docSnap.data();
-            window.shifts = cloudData.shifts || []; // Gán vào biến global shifts
-            if (typeof updateAllViews === "function") updateAllViews();
+            // Gán thẳng vào window để toàn app đều thấy
+            window.shifts = cloudData.shifts || []; 
+            if (typeof updateAllViews === "function") updateAllViews(); 
         }
     } catch (e) {
-        console.error("Không thể tải dữ liệu từ Cloud:", e);
+        console.error("Lỗi tải mây:", e);
     }
-  };
-
+};
   window.handleAuthAction = async () => {
     if (typeof vibrate === "function") vibrate();
     const userVal = document.getElementById('authUsername').value.trim();
@@ -1073,19 +1073,17 @@ window.hideLoading = () => {
   // Lắng nghe trạng thái đăng nhập
   onAuthStateChanged(auth, async (user) => {
     if (user) {
-      window.currentUser = user.email.split('@')[0];
-      localStorage.setItem('smartCurrentUser', window.currentUser);
-      
-      // Chạy song song: Tải dữ liệu và Mở app
-      await syncShiftsFromCloud();
-      
-      if (typeof unlockApp === "function") unlockApp();
-      if (typeof hideLoading === "function") hideLoading();
-    } else {
-        // Nếu chưa login thì đảm bảo loading screen phải ẩn
-        if (typeof hideLoading === "function") hideLoading();
+        window.currentUser = user.email.split('@')[0];
+        localStorage.setItem('smartCurrentUser', window.currentUser);
+        
+        // BƯỚC QUAN TRỌNG: Phải await để tải xong dữ liệu
+        showLoading(); // Hiện xoay tròn lúc đang tải từ Cloud
+        await syncShiftsFromCloud(); 
+        
+        unlockApp(); 
+        hideLoading();
     }
-  });
+});
 
   window.logoutApp = () => {
     signOut(auth).then(() => {
