@@ -944,28 +944,6 @@
     function closeModal() { modal.style.display = 'none'; confirmBtn.onclick = null; }
     window.onclick = function(event) { if (event.target == modal) closeModal(); }
 
-    function animateCount(id, finalValue) {
-    const element = document.getElementById(id);
-    let startValue = 0;
-    const duration = 1000; // Chạy trong 1 giây
-    const startTime = performance.now();
-
-    function update(currentTime) {
-        const elapsed = currentTime - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        
-        // Hiệu ứng Ease-out giúp số chạy chậm lại khi gần đến đích
-        const easeOut = 1 - Math.pow(1 - progress, 3);
-        const currentNumber = Math.floor(easeOut * finalValue);
-        
-        element.innerText = formatMoney(currentNumber);
-
-        if (progress < 1) {
-            requestAnimationFrame(update);
-        }
-    }
-    requestAnimationFrame(update);
-}
 </script>
 <script type="module">
     // Triệu hồi các phần tử DOM cho Module
