@@ -6,6 +6,7 @@
     <title>Pro Timekeeper</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         
         :root {
@@ -369,6 +370,18 @@
         .settings-footer p { margin: 3px 0; }
         .settings-footer .version { font-family: monospace; background: #E5E7EB; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
         
+        body.dark-mode {
+    --bg: #121212;
+    --card-bg: #1E1E1E;
+    --text-main: #F3F4F6;
+    --text-sub: #9CA3AF;
+}
+
+body.dark-mode input, body.dark-mode .time-picker-row {
+    background: #2D2D2D;
+    border-color: #3F3F46;
+    color: white;
+}
     </style>
 </head>
 <body>
@@ -578,6 +591,23 @@
     const confirmPassGroup = document.getElementById('confirmPassGroup');
     const btnAuthText = document.getElementById('btnAuthText');
     const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+    const ctx = document.getElementById('incomeChart').getContext('2d');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+        datasets: [{
+            label: 'Thu nhập (VND)',
+            data: [182000, 182000, 130000, 390000, 156000, 0, 0], // Dữ liệu mẫu từ lịch sử
+            backgroundColor: '#4F46E5',
+            borderRadius: 8
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } }
+    }
+});
 
     // --- INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
@@ -943,8 +973,35 @@
     }
     function closeModal() { modal.style.display = 'none'; confirmBtn.onclick = null; }
     window.onclick = function(event) { if (event.target == modal) closeModal(); }
-    
-    
+
+    function animateCount(id, finalValue) {
+    const element = document.getElementById(id);
+    let startValue = 0;
+    const duration = 1000; // Chạy trong 1 giây
+    const startTime = performance.now();
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Hiệu ứng Ease-out giúp số chạy chậm lại khi gần đến đích
+        const easeOut = 1 - Math.pow(1 - progress, 3);
+        const currentNumber = Math.floor(easeOut * finalValue);
+        
+        element.innerText = formatMoney(currentNumber);
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+    requestAnimationFrame(update);
+}
+function toggleDarkMode() {
+    vibrate(10); // Rung nhẹ một cái cho chuyên nghiệp
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+}    
 </script>
 <script type="module">
     // Triệu hồi các phần tử DOM cho Module
