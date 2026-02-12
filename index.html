@@ -1,1006 +1,1042 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Pro Timekeeper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        
-        :root {
-            --primary: #4F46E5;
-            --primary-light: #EEF2FF;
-            --success: #10B981;
-            --danger: #EF4444;
-            --bg: #F3F4F6;
-            --card-bg: #FFFFFF;
-            --text-main: #111827;
-            --text-sub: #6B7280;
-            --nav-height: 70px;
-        }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pro Timekeeper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #EEF2FF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --nav-height: 70px;
+        }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
-            padding-bottom: calc(var(--nav-height) + 20px);
-            user-select: none;
-            overflow-x: hidden;
-        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            padding-bottom: calc(var(--nav-height) + 20px);
+            user-select: none;
+            overflow-x: hidden;
+        }
 
-        /* --- LOGIN OVERLAY --- */
-        /* --- LOADING SCREEN --- */
-#loading-overlay {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(255, 255, 255, 0.85); /* Nền trắng mờ */
-    z-index: 10000; /* Nằm trên cả login screen */
-    display: none; /* Mặc định ẩn */
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(5px); /* Hiệu ứng làm mờ nền phía sau rất "xịn" */
-    transition: opacity 0.3s ease;
-}
+        /* --- LOGIN OVERLAY --- */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+        }
 
-.spinner {
-    width: 50px;
-    height: 50px;
-    border: 4px solid var(--primary-light);
-    border-top: 4px solid var(--primary); /* Màu chính của app */
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin-bottom: 15px;
-}
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-.loading-text {
-    font-weight: 600;
-    color: var(--primary);
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    animation: pulse 1.5s infinite ease-in-out;
-}
+        .loading-text {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
 
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.6; }
-}
-        #login-screen {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: white;
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            transition: opacity 0.3s ease;
-        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
 
-        .login-card {
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-            animation: fadeIn 0.5s ease;
-        }
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
 
-        .login-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            color: white;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 20px;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
-        }
+        .login-card {
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+        }
 
-        /* --- HEADER --- */
-        .app-header {
-            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            color: white;
-            padding: 25px 20px 40px;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
-            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
-            position: relative;
-            z-index: 10;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .welcome-text { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
-        .salary-display { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
+        /* --- HEADER --- */
+        .app-header {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            padding: 25px 20px 40px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+            position: relative;
+            z-index: 10;
+        }
 
-        /* --- CONTAINER --- */
-        .container {
-            padding: 0 15px;
-            margin-top: -30px;
-            position: relative;
-            z-index: 20;
-        }
+        .welcome-text { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .salary-display { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
 
-        /* --- CARDS --- */
-        .card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            animation: slideUp 0.3s ease-out;
-        }
+        /* --- CONTAINER --- */
+        .container {
+            padding: 0 15px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 20;
+        }
 
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* --- CARDS --- */
+        .card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.3s ease-out;
+        }
 
-        .card-title {
-            font-size: 0.95rem;
-            font-weight: 700;
-            color: var(--text-sub);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-        /* --- INPUTS & SELECTS --- */
-        .input-group { margin-bottom: 15px; text-align: left; }
-        .input-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; }
-        
-        input {
-            width: 100%;
-            padding: 14px;
-            border: 2px solid #E5E7EB;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            background: #F9FAFB;
-            transition: all 0.2s;
-        }
-        input:focus { border-color: var(--primary); background: white; outline: none; }
+        .card-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
 
-        .time-picker-row {
-            display: flex;
-            gap: 10px;
-            background: #F9FAFB;
-            padding: 5px;
-            border-radius: 12px;
-            border: 2px solid #E5E7EB;
-        }
+        /* --- INPUTS & SELECTS --- */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #F9FAFB;
+            transition: all 0.2s;
+        }
+        input:focus { border-color: var(--primary); background: white; outline: none; }
 
-        .time-select {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--text-main);
-            text-align: center;
-            padding: 10px 0;
-            appearance: none;
-        }
-        .colon { font-weight: bold; align-self: center; color: var(--text-sub); }
+        /* FIXED: CSS cho Time Picker để hiển thị rõ ràng */
+        .time-select {
+            flex: 1;
+            border: none;
+            background: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+            padding: 10px 0;
+            appearance: auto; /* Quan trọng: Hiển thị mũi tên chọn */
+            border-radius: 8px;
+            cursor: pointer;
+        }
 
-        /* --- BUTTONS --- */
-        .btn {
-            width: 100%;
-            padding: 16px;
-            border-radius: 14px;
-            border: none;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: transform 0.1s;
-        }
-        .btn:active { transform: scale(0.98); }
+        .time-picker-row {
+            display: flex;
+            gap: 5px;
+            background: #F9FAFB;
+            padding: 5px;
+            border-radius: 12px;
+            border: 2px solid #E5E7EB;
+            align-items: center;
+        }
+        .colon { font-weight: bold; align-self: center; color: var(--text-sub); }
 
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
-        .btn-danger { background: #FEE2E2; color: var(--danger); }
-        .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: 10px; }
-        
-        /* Button đăng nhập */
-        .btn-login {
-            background: var(--text-main);
-            color: white;
-            margin-top: 10px;
-        }
-        
-        .link-text {
-            color: var(--primary);
-            font-weight: 600;
-            font-size: 0.9rem;
-            margin-top: 25px;
-            cursor: pointer;
-            display: inline-block;
-        }
+        /* --- BUTTONS --- */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.1s;
+        }
+        .btn:active { transform: scale(0.98); }
 
-        /* --- TABLE EXCEL STYLE --- */
-        .table-responsive {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            border-radius: 12px;
-            border: 1px solid #E5E7EB;
-        }
-        
-        .excel-table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 400px;
-            font-size: 0.9rem;
-        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-danger { background: #FEE2E2; color: var(--danger); }
+        .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: 10px; }
+        
+        .btn-login {
+            background: var(--text-main);
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .link-text {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 25px;
+            cursor: pointer;
+            display: inline-block;
+        }
 
-        .excel-table th {
-            background-color: #F3F4F6;
-            color: var(--text-sub);
-            font-weight: 700;
-            text-align: left;
-            padding: 12px;
-            border-bottom: 2px solid #E5E7EB;
-            white-space: nowrap;
-        }
+        /* --- TABLE EXCEL STYLE --- */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+            font-size: 0.9rem;
+        }
 
-        .excel-table td {
-            padding: 12px;
-            border-bottom: 1px solid #E5E7EB;
-            color: var(--text-main);
-        }
+        .excel-table th {
+            background-color: #F3F4F6;
+            color: var(--text-sub);
+            font-weight: 700;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #E5E7EB;
+            white-space: nowrap;
+        }
 
-        .excel-table tr:last-child td { border-bottom: none; }
-        .excel-table tr:nth-child(even) { background-color: #F9FAFB; }
-        
-        .excel-table td:last-child {
-            font-weight: 700;
-            color: var(--success);
-            text-align: right;
-        }
-        .excel-table th:last-child { text-align: right; }
+        .excel-table td {
+            padding: 12px;
+            border-bottom: 1px solid #E5E7EB;
+            color: var(--text-main);
+        }
 
-        /* --- HISTORY LIST --- */
-        .history-list { list-style: none; padding: 0; margin: 0; }
-        .history-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #F3F4F6;
-        }
-        .history-item:last-child { border-bottom: none; }
+        .excel-table tr:last-child td { border-bottom: none; }
+        .excel-table tr:nth-child(even) { background-color: #F9FAFB; }
+        
+        .excel-table td:last-child {
+            font-weight: 700;
+            color: var(--success);
+            text-align: right;
+        }
+        .excel-table th:last-child { text-align: right; }
 
-        .date-badge {
-            background: var(--primary-light);
-            color: var(--primary);
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-        .date-badge span:first-child { font-size: 1.1rem; line-height: 1; }
-        .date-badge span:last-child { font-size: 0.7rem; text-transform: uppercase; }
+        /* --- HISTORY LIST --- */
+        .history-list { list-style: none; padding: 0; margin: 0; }
+        .history-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #F3F4F6;
+        }
+        .history-item:last-child { border-bottom: none; }
 
-        .item-info { flex: 1; }
-        .item-time { font-size: 0.9rem; font-weight: 600; }
-        .item-duration { font-size: 0.8rem; color: var(--text-sub); background: #F3F4F6; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
-        .item-money { color: var(--success); font-weight: 700; display: block; margin-top: 2px; }
+        .date-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+        .date-badge span:first-child { font-size: 1.1rem; line-height: 1; }
+        .date-badge span:last-child { font-size: 0.7rem; text-transform: uppercase; }
 
-        /* --- BOTTOM NAVIGATION --- */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: var(--nav-height);
-            background: white;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            z-index: 100;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-        }
+        .item-info { flex: 1; }
+        .item-time { font-size: 0.9rem; font-weight: 600; }
+        .item-duration { font-size: 0.8rem; color: var(--text-sub); background: #F3F4F6; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .item-money { color: var(--success); font-weight: 700; display: block; margin-top: 2px; }
 
-        .nav-btn {
-            background: none;
-            border: none;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #9CA3AF;
-            font-size: 0.7rem;
-            font-weight: 600;
-            gap: 5px;
-            padding: 10px;
-            width: 25%;
-        }
-        
-        .nav-btn i { font-size: 1.3rem; transition: transform 0.2s; }
-        .nav-btn.active { color: var(--primary); }
-        .nav-btn.active i { transform: translateY(-3px); }
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
 
-        /* --- TOAST & MODAL --- */
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; max-width: 400px; }
-        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; opacity: 0; transform: translateY(-20px); transition: all 0.3s; pointer-events: none; }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
+        .nav-btn {
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9CA3AF;
+            font-size: 0.7rem;
+            font-weight: 600;
+            gap: 5px;
+            padding: 10px;
+            width: 25%;
+        }
+        
+        .nav-btn i { font-size: 1.3rem; transition: transform 0.2s; }
+        .nav-btn.active { color: var(--primary); }
+        .nav-btn.active i { transform: translateY(-3px); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
-        .modal-box { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; animation: popIn 0.2s; }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        /* --- TOAST & MODAL --- */
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; max-width: 400px; }
+        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; opacity: 0; transform: translateY(-20px); transition: all 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
 
-        .section { display: none; }
-        .section.active { display: block; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal-box { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; animation: popIn 0.2s; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
 
-        /* BRANDING FOOTER IN SETTINGS ONLY */
-        .settings-footer {
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 20px;
-            color: #9CA3AF;
-            font-size: 0.8rem;
-        }
-        .settings-footer p { margin: 3px 0; }
-        .settings-footer .version { font-family: monospace; background: #E5E7EB; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
-        
-    </style>
+        .section { display: none; }
+        .section.active { display: block; }
+
+        .settings-footer {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: #9CA3AF;
+            font-size: 0.8rem;
+        }
+        .settings-footer p { margin: 3px 0; }
+        .settings-footer .version { font-family: monospace; background: #E5E7EB; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
+    </style>
 </head>
 <body>
 <div id="loading-overlay">
-    <div class="spinner"></div>
-    <div class="loading-text">Đang xử lý dữ liệu...</div>
+    <div class="spinner"></div>
+    <div class="loading-text">Đang xử lý dữ liệu...</div>
 </div>
 <div id="login-screen">
-    <div class="login-card">
-        <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
-        <h2 id="authTitle" style="margin: 0; font-size: 1.5rem;">Đăng nhập</h2>
-        <p id="authSubtitle" style="color: #6B7280; font-size: 0.9rem; margin-top: 5px; margin-bottom: 20px;">Quản lý thời gian chuyên nghiệp</p>
-        
-        <div class="input-group">
-            <input type="text" id="authUsername" placeholder="Tên tài khoản">
-        </div>
-        <div class="input-group">
-            <input type="password" id="authPassword" placeholder="Mật khẩu">
-        </div>
-        
-        <div class="input-group" id="confirmPassGroup" style="display: none;">
-            <input type="password" id="authConfirmPass" placeholder="Nhập lại mật khẩu">
-        </div>
+    <div class="login-card">
+        <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2 id="authTitle" style="margin: 0; font-size: 1.5rem;">Đăng nhập</h2>
+        <p id="authSubtitle" style="color: #6B7280; font-size: 0.9rem; margin-top: 5px; margin-bottom: 20px;">Quản lý thời gian chuyên nghiệp</p>
+        
+        <div class="input-group">
+            <input type="text" id="authUsername" placeholder="Tên tài khoản">
+        </div>
+        <div class="input-group">
+            <input type="password" id="authPassword" placeholder="Mật khẩu">
+        </div>
+        
+        <div class="input-group" id="confirmPassGroup" style="display: none;">
+            <input type="password" id="authConfirmPass" placeholder="Nhập lại mật khẩu">
+        </div>
 
-        <button class="btn btn-login" onclick="handleAuthAction()">
-            <span id="btnAuthText">Đăng nhập</span>
-        </button>
+        <button class="btn btn-login" onclick="handleAuthAction()">
+            <span id="btnAuthText">Đăng nhập</span>
+        </button>
 
-        <span class="link-text" id="toggleAuthBtn" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký</span>
-    </div>
+        <span class="link-text" id="toggleAuthBtn" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký</span>
+    </div>
 </div>
 
 <div id="main-app" style="display: none;">
-    <header class="app-header">
-        <div class="welcome-text"><i class="fa-regular fa-sun"></i> Xin chào, <span id="displayUserName">Bạn</span></div>
-        <div style="font-size: 0.8rem; opacity: 0.7; text-transform: uppercase;">Lương tạm tính tháng này</div>
-        <div class="salary-display" id="headerTotalSalary">0</div>
-    </header>
+    <header class="app-header">
+        <div class="welcome-text"><i class="fa-regular fa-sun"></i> Xin chào, <span id="displayUserName">Bạn</span></div>
+        <div style="font-size: 0.8rem; opacity: 0.7; text-transform: uppercase;">Lương tạm tính tháng này</div>
+        <div class="salary-display" id="headerTotalSalary">0</div>
+    </header>
 
-    <div class="container">
-        
-        <div id="tab-checkin" class="section active">
-            <div class="card">
-                <div class="card-title"><i class="fa-solid fa-calendar-check"></i> Chấm công hôm nay</div>
-                <div class="input-group">
-                    <input type="date" id="workDate">
-                </div>
-                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
-                    <div style="flex:1">
-                        <label class="input-label">Giờ vào</label>
-                        <div class="time-picker-row">
-                            <select id="startH" class="time-select"></select><span class="colon">:</span><select id="startM" class="time-select"></select>
-                        </div>
-                    </div>
-                    <div style="flex:1">
-                        <label class="input-label">Giờ ra</label>
-                        <div class="time-picker-row">
-                            <select id="endH" class="time-select"></select><span class="colon">:</span><select id="endM" class="time-select"></select>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-primary" onclick="addShift()"><i class="fa-solid fa-plus"></i> Xác Nhận</button>
-            </div>
+    <div class="container">
+        
+        <div id="tab-checkin" class="section active">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-calendar-check"></i> Chấm công hôm nay</div>
+                <div class="input-group">
+                    <input type="date" id="workDate">
+                </div>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <div style="flex:1">
+                        <label class="input-label">Giờ vào</label>
+                        <div class="time-picker-row">
+                            <select id="startH" class="time-select"></select><span class="colon">:</span><select id="startM" class="time-select"></select>
+                        </div>
+                    </div>
+                    <div style="flex:1">
+                        <label class="input-label">Giờ ra</label>
+                        <div class="time-picker-row">
+                            <select id="endH" class="time-select"></select><span class="colon">:</span><select id="endM" class="time-select"></select>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="addShift()"><i class="fa-solid fa-plus"></i> Xác Nhận</button>
+            </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
-                    <div style="color: var(--primary); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-clock"></i></div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub);">Tổng giờ</div>
-                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalHours">0h</div>
-                </div>
-                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
-                    <div style="color: var(--success); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-briefcase"></i></div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub);">Số ca</div>
-                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalShifts">0</div>
-                </div>
-            </div>
-        </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
+                    <div style="color: var(--primary); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-clock"></i></div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">Tổng giờ</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalHours">0h</div>
+                </div>
+                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
+                    <div style="color: var(--success); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-briefcase"></i></div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">Số ca</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalShifts">0</div>
+                </div>
+            </div>
+        </div>
 
-        <div id="tab-history" class="section">
-            <div class="card">
-                <div class="card-title">
-                    <span><i class="fa-solid fa-list"></i> Danh sách thẻ</span>
-                    <button class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="confirmClear()"><i class="fa-solid fa-trash"></i> Xóa hết</button>
-                </div>
-                <div id="emptyState" style="text-align: center; padding: 30px 0; color: #9CA3AF; display: none;">
-                    <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
-                    <p>Chưa có dữ liệu nào</p>
-                </div>
-                <ul class="history-list" id="historyList"></ul>
-            </div>
-        </div>
+        <div id="tab-history" class="section">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-list"></i> Danh sách thẻ</span>
+                    <button class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="confirmClear()"><i class="fa-solid fa-trash"></i> Xóa hết</button>
+                </div>
+                <div id="emptyState" style="text-align: center; padding: 30px 0; color: #9CA3AF; display: none;">
+                    <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                    <p>Chưa có dữ liệu nào</p>
+                </div>
+                <ul class="history-list" id="historyList"></ul>
+            </div>
+        </div>
 
-        <div id="tab-table" class="section">
-            <div class="card">
-                <div class="card-title">
-                    <span><i class="fa-solid fa-table"></i> Bảng tổng hợp</span>
-                    <button class="btn btn-success" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="exportToCSV()">
-                        <i class="fa-solid fa-file-excel"></i> Xuất Excel
-                    </button>
-                </div>
-                
-                <div class="table-responsive">
-                    <table class="excel-table">
-                        <thead>
-                            <tr>
-                                <th>Ngày</th>
-                                <th>Vào</th>
-                                <th>Ra</th>
-                                <th>Giờ</th>
-                                <th>Lương</th>
-                            </tr>
-                        </thead>
-                        <tbody id="excelTableBody">
-                            </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <div id="tab-table" class="section">
+            <div class="card">
+                <div class="card-title">
+                    <span><i class="fa-solid fa-table"></i> Bảng tổng hợp</span>
+                    <button class="btn btn-success" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="exportToCSV()">
+                        <i class="fa-solid fa-file-excel"></i> Xuất Excel
+                    </button>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="excel-table">
+                        <thead>
+                            <tr>
+                                <th>Ngày</th>
+                                <th>Vào</th>
+                                <th>Ra</th>
+                                <th>Giờ</th>
+                                <th>Lương</th>
+                            </tr>
+                        </thead>
+                        <tbody id="excelTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-        <div id="tab-settings" class="section">
-            <div class="card">
-                <div class="card-title"><i class="fa-solid fa-user-gear"></i> Thiết lập chung</div>
-                <div class="input-group">
-                    <label class="input-label">Tên hiển thị</label>
-                    <input type="text" id="displayNameInput" placeholder="Nhập tên..." onchange="saveSettings()">
-                </div>
-                <div class="input-group">
-                    <label class="input-label">Lương / giờ</label>
-                    <div style="position: relative;">
-                        <input type="number" id="hourlyRate" placeholder="Ví dụ: 25000" onchange="saveSettings()" style="padding-left: 45px;">
-                        <span style="position: absolute; left: 15px; top: 14px; font-weight: bold; color: var(--success);">₫</span>
-                    </div>
-                </div>
-            </div>
+        <div id="tab-settings" class="section">
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-user-gear"></i> Thiết lập chung</div>
+                <div class="input-group">
+                    <label class="input-label">Tên hiển thị</label>
+                    <input type="text" id="displayNameInput" placeholder="Nhập tên..." onchange="saveSettings()">
+                </div>
+                <div class="input-group">
+                    <label class="input-label">Lương / giờ</label>
+                    <div style="position: relative;">
+                        <input type="number" id="hourlyRate" placeholder="Ví dụ: 25000" onchange="saveSettings()" style="padding-left: 45px;">
+                        <span style="position: absolute; left: 15px; top: 14px; font-weight: bold; color: var(--success);">₫</span>
+                    </div>
+                </div>
+            </div>
 
-            <div class="card">
-                <div class="card-title"><i class="fa-solid fa-key"></i> Đổi mật khẩu</div>
-                <div class="input-group">
-                    <label class="input-label">Mật khẩu mới</label>
-                    <input type="password" id="newPasswordInput" placeholder="Nhập mật khẩu mới">
-                </div>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleChangePassword()">
-                    Cập nhật mật khẩu
-                </button>
-            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-key"></i> Đổi mật khẩu</div>
+                <div class="input-group">
+                    <label class="input-label">Mật khẩu mới</label>
+                    <input type="password" id="newPasswordInput" placeholder="Nhập mật khẩu mới">
+                </div>
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleChangePassword()">
+                    Cập nhật mật khẩu
+                </button>
+            </div>
 
-            <div class="card">
-                <div class="card-title"><i class="fa-solid fa-lock"></i> Bảo mật</div>
-                <button class="btn btn-danger" onclick="logoutApp()">
-                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất ngay
-                </button>
-            </div>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-lock"></i> Bảo mật</div>
+                <button class="btn btn-danger" onclick="logoutApp()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất ngay
+                </button>
+            </div>
 
-            <div class="settings-footer">
-                <p>Designed & Developed by <b>Van Giang</b></p>
-                <span class="version">Version 1.0.0</span>
-            </div>
-        </div>
+            <div class="settings-footer">
+                <p>Designed & Developed by <b>Van Giang</b></p>
+                <span class="version">Version 1.0.0</span>
+            </div>
+        </div>
 
-    </div>
+    </div>
 
-    <nav class="bottom-nav">
-        <button class="nav-btn active" onclick="switchTab('tab-checkin', this)">
-            <i class="fa-solid fa-stopwatch"></i> Chấm công
-        </button>
-        <button class="nav-btn" onclick="switchTab('tab-history', this)">
-            <i class="fa-regular fa-calendar-days"></i> Lịch sử
-        </button>
-        <button class="nav-btn" onclick="switchTab('tab-table', this)">
-            <i class="fa-solid fa-table"></i> Bảng kê
-        </button>
-        <button class="nav-btn" onclick="switchTab('tab-settings', this)">
-            <i class="fa-solid fa-sliders"></i> Cài đặt
-        </button>
-    </nav>
+    <nav class="bottom-nav">
+        <button class="nav-btn active" onclick="switchTab('tab-checkin', this)">
+            <i class="fa-solid fa-stopwatch"></i> Chấm công
+        </button>
+        <button class="nav-btn" onclick="switchTab('tab-history', this)">
+            <i class="fa-regular fa-calendar-days"></i> Lịch sử
+        </button>
+        <button class="nav-btn" onclick="switchTab('tab-table', this)">
+            <i class="fa-solid fa-table"></i> Bảng kê
+        </button>
+        <button class="nav-btn" onclick="switchTab('tab-settings', this)">
+            <i class="fa-solid fa-sliders"></i> Cài đặt
+        </button>
+    </nav>
 </div>
 
 <div id="toast-container"></div>
 
 <div class="modal-overlay" id="confirmModal">
-    <div class="modal-box">
-        <div style="font-size: 3rem; color: var(--danger); margin-bottom: 10px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
-        <h3 style="margin: 0 0 10px;">Xác nhận xóa?</h3>
-        <p style="color: #6B7280; font-size: 0.9rem; margin-bottom: 20px;" id="modalMessage"></p>
-        <div class="modal-buttons">
-            <button class="btn" style="background: #F3F4F6; color: #374151;" onclick="closeModal()">Hủy</button>
-            <button class="btn btn-danger" id="confirmBtnAction">Xóa ngay</button>
-        </div>
-    </div>
+    <div class="modal-box">
+        <div style="font-size: 3rem; color: var(--danger); margin-bottom: 10px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 style="margin: 0 0 10px;">Xác nhận xóa?</h3>
+        <p style="color: #6B7280; font-size: 0.9rem; margin-bottom: 20px;" id="modalMessage"></p>
+        <div class="modal-buttons">
+            <button class="btn" style="background: #F3F4F6; color: #374151;" onclick="closeModal()">Hủy</button>
+            <button class="btn btn-danger" id="confirmBtnAction">Xóa ngay</button>
+        </div>
+    </div>
 </div>
 
 <script>
-    // --- VARIABLES STATE ---
-    let shifts = [];
-    let currentUser = null; 
-    let isRegisterMode = false;
+    // --- VARIABLES STATE ---
+    let shifts = [];
+    let currentUser = null; 
+    let isRegisterMode = false;
 
-    // --- DOM ELEMENTS ---
-    const loadingOverlay = document.getElementById('loading-overlay');
-    const loginScreen = document.getElementById('login-screen');
-    const mainApp = document.getElementById('main-app');
-    
-    const authTitle = document.getElementById('authTitle');
-    const authUsername = document.getElementById('authUsername');
-    const authPassword = document.getElementById('authPassword');
-    const authConfirmPass = document.getElementById('authConfirmPass');
-    const confirmPassGroup = document.getElementById('confirmPassGroup');
-    const btnAuthText = document.getElementById('btnAuthText');
-    const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+    // --- DOM ELEMENTS ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+    
+    const authTitle = document.getElementById('authTitle');
+    const authUsername = document.getElementById('authUsername');
+    const authPassword = document.getElementById('authPassword');
+    const authConfirmPass = document.getElementById('authConfirmPass');
+    const confirmPassGroup = document.getElementById('confirmPassGroup');
+    const btnAuthText = document.getElementById('btnAuthText');
+    const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+    
+    // --- FIX CHART ERROR (Đã sửa lỗi treo app tại đây) ---
+    // Kiểm tra xem thẻ canvas có tồn tại không trước khi gọi lệnh
+    const chartElement = document.getElementById('incomeChart');
+    if (typeof Chart !== 'undefined' && chartElement) {
+        const ctx = chartElement.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Thu nhập (VND)',
+                    data: [182000, 182000, 130000, 390000, 156000, 0, 0],
+                    backgroundColor: '#4F46E5',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    } else {
+        console.log("Skipping Chart init: Canvas not found or library missing.");
+    }
 
-    // --- INITIALIZATION ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // Kiểm tra xem có phiên đăng nhập cũ không
-        const storedUser = localStorage.getItem('smartCurrentUser');
-        if (storedUser) {
-            currentUser = storedUser;
-            unlockApp(); // Tự động vào nếu đã login
-        }
-        initApp();
-    });
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Kiểm tra xem có phiên đăng nhập cũ không
+        const storedUser = localStorage.getItem('smartCurrentUser');
+        if (storedUser) {
+            currentUser = storedUser;
+            unlockApp(); // Tự động vào nếu đã login
+        }
+        initApp();
+    });
 
-    // --- AUTH LOGIC (MULTI-USER) ---
-    function toggleAuthMode() {
-        isRegisterMode = !isRegisterMode;
-        if (isRegisterMode) {
-            authTitle.innerText = "Đăng ký";
-            btnAuthText.innerText = "Tạo tài khoản";
-            toggleAuthBtn.innerText = "Đã có tài khoản? Đăng nhập";
-            confirmPassGroup.style.display = "block";
-        } else {
-            authTitle.innerText = "Đăng nhập";
-            btnAuthText.innerText = "Đăng nhập";
-            toggleAuthBtn.innerText = "Chưa có tài khoản? Đăng ký";
-            confirmPassGroup.style.display = "none";
-        }
-        authUsername.value = '';
-        authPassword.value = '';
-        authConfirmPass.value = '';
-    }
+    // --- AUTH LOGIC (MULTI-USER) ---
+    function toggleAuthMode() {
+        isRegisterMode = !isRegisterMode;
+        if (isRegisterMode) {
+            authTitle.innerText = "Đăng ký";
+            btnAuthText.innerText = "Tạo tài khoản";
+            toggleAuthBtn.innerText = "Đã có tài khoản? Đăng nhập";
+            confirmPassGroup.style.display = "block";
+        } else {
+            authTitle.innerText = "Đăng nhập";
+            btnAuthText.innerText = "Đăng nhập";
+            toggleAuthBtn.innerText = "Chưa có tài khoản? Đăng ký";
+            confirmPassGroup.style.display = "none";
+        }
+        authUsername.value = '';
+        authPassword.value = '';
+        authConfirmPass.value = '';
+    }
 
-    function handleAuthAction() {
-        vibrate();
-        const user = authUsername.value.trim();
-        const pass = authPassword.value.trim();
-        
-        if (!user || !pass) {
-            showToast('error', 'Vui lòng nhập đầy đủ thông tin!');
-            return;
-        }
+    function handleAuthAction() {
+        vibrate();
+        const user = authUsername.value.trim();
+        const pass = authPassword.value.trim();
+        
+        if (!user || !pass) {
+            showToast('error', 'Vui lòng nhập đầy đủ thông tin!');
+            return;
+        }
 
-        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
+        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
 
-        if (isRegisterMode) {
-            // ĐĂNG KÝ
-            const confirm = authConfirmPass.value.trim();
-            if (pass !== confirm) {
-                showToast('error', 'Mật khẩu nhập lại không khớp!');
-                return;
-            }
-            if (usersDB[user]) {
-                showToast('error', 'Tên tài khoản này đã tồn tại!');
-                return;
-            }
-            // Tạo user mới
-            usersDB[user] = btoa(pass); 
-            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
-            showToast('success', 'Đăng ký thành công!');
-            performLogin(user);
+        if (isRegisterMode) {
+            // ĐĂNG KÝ
+            const confirm = authConfirmPass.value.trim();
+            if (pass !== confirm) {
+                showToast('error', 'Mật khẩu nhập lại không khớp!');
+                return;
+            }
+            if (usersDB[user]) {
+                showToast('error', 'Tên tài khoản này đã tồn tại!');
+                return;
+            }
+            // Tạo user mới
+            usersDB[user] = btoa(pass); 
+            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
+            showToast('success', 'Đăng ký thành công!');
+            performLogin(user);
 
-        } else {
-            // ĐĂNG NHẬP
-            if (!usersDB[user]) {
-                showToast('error', 'Tài khoản không tồn tại!');
-                return;
-            }
-            if (usersDB[user] === btoa(pass)) {
-                performLogin(user);
-            } else {
-                showToast('error', 'Sai mật khẩu!');
-            }
-        }
-    }
+        } else {
+            // ĐĂNG NHẬP
+            if (!usersDB[user]) {
+                showToast('error', 'Tài khoản không tồn tại!');
+                return;
+            }
+            if (usersDB[user] === btoa(pass)) {
+                performLogin(user);
+            } else {
+                showToast('error', 'Sai mật khẩu!');
+            }
+        }
+    }
 
-    function performLogin(user) {
-    // 1. Hiển thị loading screen ngay lập tức
-    loadingOverlay.style.display = 'flex';
-    loadingOverlay.style.opacity = '1';
+    function performLogin(user) {
+    // 1. Hiển thị loading screen ngay lập tức
+    loadingOverlay.style.display = 'flex';
+    loadingOverlay.style.opacity = '1';
 
-    // 2. Giả lập thời gian chờ 1.5 giây (1500ms) để nhìn cho chuyên nghiệp
-    setTimeout(() => {
-        currentUser = user;
-        localStorage.setItem('smartCurrentUser', user); 
-        loadUserData(); 
-        unlockApp();
-    }, 1500); 
+    // 2. Giả lập thời gian chờ 1.5 giây (1500ms) để nhìn cho chuyên nghiệp
+    setTimeout(() => {
+        currentUser = user;
+        localStorage.setItem('smartCurrentUser', user); 
+        loadUserData(); 
+        unlockApp();
+    }, 1500); 
 }
 
-    function logoutApp() {
-        vibrate();
-        localStorage.removeItem('smartCurrentUser');
-        currentUser = null;
-        shifts = [];
-        location.reload();
-    }
+    function logoutApp() {
+        vibrate();
+        localStorage.removeItem('smartCurrentUser');
+        currentUser = null;
+        shifts = [];
+        location.reload();
+    }
 
-    function handleChangePassword() {
-        vibrate();
-        const newPass = document.getElementById('newPasswordInput').value.trim();
-        if (!newPass) {
-            showToast('error', 'Vui lòng nhập mật khẩu mới!');
-            return;
-        }
+    function handleChangePassword() {
+        vibrate();
+        const newPass = document.getElementById('newPasswordInput').value.trim();
+        if (!newPass) {
+            showToast('error', 'Vui lòng nhập mật khẩu mới!');
+            return;
+        }
 
-        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
-        if (currentUser && usersDB[currentUser]) {
-            usersDB[currentUser] = btoa(newPass);
-            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
-            document.getElementById('newPasswordInput').value = '';
-            showToast('success', 'Đổi mật khẩu thành công!');
-        } else {
-            showToast('error', 'Lỗi không xác định!');
-        }
-    }
+        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
+        if (currentUser && usersDB[currentUser]) {
+            usersDB[currentUser] = btoa(newPass);
+            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
+            document.getElementById('newPasswordInput').value = '';
+            showToast('success', 'Đổi mật khẩu thành công!');
+        } else {
+            showToast('error', 'Lỗi không xác định!');
+        }
+    }
 
-    function unlockApp() {
-    loginScreen.style.opacity = '0';
-    
-    setTimeout(() => {
-        loginScreen.style.display = 'none';
-        mainApp.style.display = 'block';
-        
-        // 3. Ẩn loading screen sau khi App chính đã hiện lên
-        loadingOverlay.style.opacity = '0';
-        setTimeout(() => {
-            loadingOverlay.style.display = 'none';
-        }, 300); // Đợi hiệu ứng mờ dần kết thúc mới ẩn hẳn
+    function unlockApp() {
+    loginScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'block';
+        
+        // 3. Ẩn loading screen sau khi App chính đã hiện lên
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 300); // Đợi hiệu ứng mờ dần kết thúc mới ẩn hẳn
 
-        updateAllViews();
-    }, 300);
-    
-    document.getElementById('workDate').valueAsDate = new Date();
+        updateAllViews();
+    }, 300);
+    
+    document.getElementById('workDate').valueAsDate = new Date();
 }
 
-    // --- DATA MANAGEMENT (ISOLATED) ---
-    function loadUserData() {
-        if (!currentUser) return;
-        const dataKey = `smartData_${currentUser}`;
-        const data = JSON.parse(localStorage.getItem(dataKey) || '{}');
-        
-        shifts = data.shifts || [];
-        document.getElementById('hourlyRate').value = data.rate || '';
-        document.getElementById('displayNameInput').value = data.displayName || '';
-        document.getElementById('displayUserName').innerText = data.displayName || currentUser;
-    }
+    // --- DATA MANAGEMENT (ISOLATED) ---
+    function loadUserData() {
+        if (!currentUser) return;
+        const dataKey = `smartData_${currentUser}`;
+        const data = JSON.parse(localStorage.getItem(dataKey) || '{}');
+        
+        shifts = data.shifts || [];
+        document.getElementById('hourlyRate').value = data.rate || '';
+        document.getElementById('displayNameInput').value = data.displayName || '';
+        document.getElementById('displayUserName').innerText = data.displayName || currentUser;
+    }
 
-    function saveSettings() {
-        saveUserData();
-        document.getElementById('displayUserName').innerText = document.getElementById('displayNameInput').value || currentUser;
-    }
+    function saveSettings() {
+        saveUserData();
+        document.getElementById('displayUserName').innerText = document.getElementById('displayNameInput').value || currentUser;
+    }
 
-    function saveUserData() {
-        if (!currentUser) return;
-        const dataKey = `smartData_${currentUser}`;
-        const data = {
-            shifts: shifts,
-            rate: document.getElementById('hourlyRate').value,
-            displayName: document.getElementById('displayNameInput').value
-        };
-        localStorage.setItem(dataKey, JSON.stringify(data));
-        updateHeader(); 
-    }
+    function saveUserData() {
+        if (!currentUser) return;
+        const dataKey = `smartData_${currentUser}`;
+        const data = {
+            shifts: shifts,
+            rate: document.getElementById('hourlyRate').value,
+            displayName: document.getElementById('displayNameInput').value
+        };
+        localStorage.setItem(dataKey, JSON.stringify(data));
+        updateHeader(); 
+    }
 
-    // --- APP LOGIC ---
-    function initApp() {
-        const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'));
-        const minutes = ['00', '15', '30', '45'];
-        ['startH', 'endH'].forEach(id => {
-            const sel = document.getElementById(id);
-            if(sel.options.length === 0) {
-                hours.forEach(h => sel.innerHTML += `<option value="${h}">${h}</option>`);
-                if(id === 'startH') sel.value = "08"; if(id === 'endH') sel.value = "17";   
-            }
-        });
-        ['startM', 'endM'].forEach(id => {
-            const sel = document.getElementById(id);
-            if(sel.options.length === 0) {
-                minutes.forEach(m => sel.innerHTML += `<option value="${m}">${m}</option>`);
-            }
-        });
-        
-        if (currentUser) loadUserData();
-        updateAllViews();
-    }
+    function initApp() {
+    const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'));
+    const minutes = ['00', '15', '30', '45'];
+    
+    // Đổ dữ liệu cho các ô chọn Giờ
+    ['startH', 'endH'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+            sel.innerHTML = ''; // Làm sạch trước khi đổ
+            hours.forEach(h => {
+                sel.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+            // Đặt giờ mặc định
+            if(id === 'startH') sel.value = "08"; 
+            if(id === 'endH') sel.value = "17";
+        }
+    });
 
-    function switchTab(tabId, btn) {
-        vibrate();
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-        window.scrollTo(0,0);
-    }
+    // Đổ dữ liệu cho các ô chọn Phút
+    ['startM', 'endM'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+            sel.innerHTML = '';
+            minutes.forEach(m => {
+                sel.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+        }
+    });
+    
+    if (currentUser) loadUserData();
+    updateAllViews();
+}
+    function switchTab(tabId, btn) {
+        vibrate();
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        window.scrollTo(0,0);
+    }
 
-    function addShift() {
-        vibrate();
-        const date = document.getElementById('workDate').value;
-        const start = document.getElementById('startH').value + ':' + document.getElementById('startM').value;
-        const end = document.getElementById('endH').value + ':' + document.getElementById('endM').value;
-        const rate = parseFloat(document.getElementById('hourlyRate').value);
+    function addShift() {
+        vibrate();
+        const date = document.getElementById('workDate').value;
+        const start = document.getElementById('startH').value + ':' + document.getElementById('startM').value;
+        const end = document.getElementById('endH').value + ':' + document.getElementById('endM').value;
+        const rate = parseFloat(document.getElementById('hourlyRate').value);
 
-        if (!rate) { showToast('error', '⚠️ Vui lòng nhập mức lương!'); switchTab('tab-settings', document.querySelectorAll('.nav-btn')[3]); return; }
-        if (!date) { showToast('error', 'Vui lòng chọn ngày!'); return; }
+        if (!rate) { showToast('error', '⚠️ Vui lòng nhập mức lương!'); switchTab('tab-settings', document.querySelectorAll('.nav-btn')[3]); return; }
+        if (!date) { showToast('error', 'Vui lòng chọn ngày!'); return; }
 
-        const startDate = new Date(`2000-01-01T${start}`);
-        const endDate = new Date(`2000-01-01T${end}`);
-        let diff = (endDate - startDate) / 1000 / 60 / 60;
-        if (diff < 0) diff += 24; 
-        
-        const hoursWorked = Math.round(diff * 100) / 100;
-        const salary = hoursWorked * rate;
+        const startDate = new Date(`2000-01-01T${start}`);
+        const endDate = new Date(`2000-01-01T${end}`);
+        let diff = (endDate - startDate) / 1000 / 60 / 60;
+        if (diff < 0) diff += 24; 
+        
+        const hoursWorked = Math.round(diff * 100) / 100;
+        const salary = hoursWorked * rate;
 
-        const shift = { id: Date.now(), date, start, end, hours: hoursWorked, salary: salary };
+        const shift = { id: Date.now(), date, start, end, hours: hoursWorked, salary: salary };
 
-        shifts.push(shift);
-        saveUserData(); 
-        updateAllViews();
-        showToast('success', 'Đã chấm công thành công!');
-    }
+        shifts.push(shift);
+        saveUserData(); 
+        updateAllViews();
+        showToast('success', 'Đã chấm công thành công!');
+    }
 
-    let itemToDelete = null;
-    function confirmDelete(id) {
-        vibrate();
-        itemToDelete = id;
-        showModal('Bạn có chắc muốn xóa ca làm việc này?', () => {
-            shifts = shifts.filter(s => s.id !== itemToDelete);
-            saveUserData();
-            updateAllViews();
-            showToast('success', 'Đã xóa thành công!');
-        });
-    }
+    let itemToDelete = null;
+    function confirmDelete(id) {
+        vibrate();
+        itemToDelete = id;
+        showModal('Bạn có chắc muốn xóa ca làm việc này?', () => {
+            shifts = shifts.filter(s => s.id !== itemToDelete);
+            saveUserData();
+            updateAllViews();
+            showToast('success', 'Đã xóa thành công!');
+        });
+    }
 
-    function confirmClear() {
-        vibrate();
-        if(shifts.length === 0) return;
-        showModal('Toàn bộ dữ liệu của bạn sẽ bị xóa?', () => {
-            shifts = [];
-            saveUserData();
-            updateAllViews();
-            showToast('success', 'Đã làm sạch dữ liệu!');
-        });
-    }
+    function confirmClear() {
+        vibrate();
+        if(shifts.length === 0) return;
+        showModal('Toàn bộ dữ liệu của bạn sẽ bị xóa?', () => {
+            shifts = [];
+            saveUserData();
+            updateAllViews();
+            showToast('success', 'Đã làm sạch dữ liệu!');
+        });
+    }
 
-    // --- VIEW RENDERING ---
-    function updateAllViews() {
-        renderHistory();
-        renderExcelTable();
-        updateHeader();
-    }
+    // --- VIEW RENDERING ---
+    function updateAllViews() {
+        renderHistory();
+        renderExcelTable();
+        updateHeader();
+    }
 
-    function renderHistory() {
-        const list = document.getElementById('historyList');
-        const emptyState = document.getElementById('emptyState');
-        list.innerHTML = '';
-        let totalHours = 0;
-        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    function renderHistory() {
+        const list = document.getElementById('historyList');
+        const emptyState = document.getElementById('emptyState');
+        list.innerHTML = '';
+        let totalHours = 0;
+        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        if (sortedShifts.length === 0) emptyState.style.display = 'block';
-        else emptyState.style.display = 'none';
+        if (sortedShifts.length === 0) emptyState.style.display = 'block';
+        else emptyState.style.display = 'none';
 
-        sortedShifts.forEach(shift => {
-            totalHours += shift.hours;
-            const d = new Date(shift.date);
-            const li = document.createElement('li');
-            li.className = 'history-item';
-            li.innerHTML = `
-                <div class="date-badge"><span>${d.getDate()}</span><span>Th${d.getMonth() + 1}</span></div>
-                <div class="item-info">
-                    <div class="item-time">${shift.start} - ${shift.end} <span class="item-duration">${shift.hours}h</span></div>
-                    <span class="item-money">+${formatMoney(shift.salary)}</span>
-                </div>
-                <button class="btn btn-icon" style="background: #FEE2E2; color: #EF4444;" onclick="confirmDelete(${shift.id})"><i class="fa-solid fa-trash-can"></i></button>
-            `;
-            list.appendChild(li);
-        });
-        document.getElementById('quickTotalHours').innerText = totalHours.toFixed(1) + 'h';
-        document.getElementById('quickTotalShifts').innerText = shifts.length;
-    }
+        sortedShifts.forEach(shift => {
+            totalHours += shift.hours;
+            const d = new Date(shift.date);
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.innerHTML = `
+                <div class="date-badge"><span>${d.getDate()}</span><span>Th${d.getMonth() + 1}</span></div>
+                <div class="item-info">
+                    <div class="item-time">${shift.start} - ${shift.end} <span class="item-duration">${shift.hours}h</span></div>
+                    <span class="item-money">+${formatMoney(shift.salary)}</span>
+                </div>
+                <button class="btn btn-icon" style="background: #FEE2E2; color: #EF4444;" onclick="confirmDelete(${shift.id})"><i class="fa-solid fa-trash-can"></i></button>
+            `;
+            list.appendChild(li);
+        });
+        document.getElementById('quickTotalHours').innerText = totalHours.toFixed(1) + 'h';
+        document.getElementById('quickTotalShifts').innerText = shifts.length;
+    }
 
-    function renderExcelTable() {
-        const tbody = document.getElementById('excelTableBody');
-        tbody.innerHTML = '';
-        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
+    function renderExcelTable() {
+        const tbody = document.getElementById('excelTableBody');
+        tbody.innerHTML = '';
+        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        if (sortedShifts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">Trống</td></tr>';
-            return;
-        }
+        if (sortedShifts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">Trống</td></tr>';
+            return;
+        }
 
-        sortedShifts.forEach(shift => {
-            const row = `
-                <tr>
-                    <td>${formatDate(shift.date)}</td>
-                    <td>${shift.start}</td>
-                    <td>${shift.end}</td>
-                    <td>${shift.hours}</td>
-                    <td>${formatMoney(shift.salary)}</td>
-                </tr>
-            `;
-            tbody.innerHTML += row;
-        });
-    }
+        sortedShifts.forEach(shift => {
+            const row = `
+                <tr>
+                    <td>${formatDate(shift.date)}</td>
+                    <td>${shift.start}</td>
+                    <td>${shift.end}</td>
+                    <td>${shift.hours}</td>
+                    <td>${formatMoney(shift.salary)}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
+        });
+    }
 
-    // --- IMPROVED EXPORT TO CSV (WITH BOM FOR EXCEL UTF-8) ---
-    function exportToCSV() {
-        if(shifts.length === 0) { showToast('error', 'Chưa có dữ liệu để xuất!'); return; }
-        
-        // Thêm BOM \uFEFF để Excel nhận diện UTF-8
-        let csvContent = "\uFEFF"; 
-        csvContent += "Ngày,Giờ Vào,Giờ Ra,Số Giờ,Lương\n";
-        
-        shifts.forEach(shift => {
-            // Định dạng lại tiền tệ cho dễ nhìn trong Excel (bỏ dấu chấm)
-            const cleanSalary = shift.salary; 
-            const row = `${formatDate(shift.date)},${shift.start},${shift.end},${shift.hours},${cleanSalary}`;
-            csvContent += row + "\n";
-        });
+    // --- IMPROVED EXPORT TO CSV (WITH BOM FOR EXCEL UTF-8) ---
+    function exportToCSV() {
+        if(shifts.length === 0) { showToast('error', 'Chưa có dữ liệu để xuất!'); return; }
+        
+        // Thêm BOM \uFEFF để Excel nhận diện UTF-8
+        let csvContent = "\uFEFF"; 
+        csvContent += "Ngày,Giờ Vào,Giờ Ra,Số Giờ,Lương\n";
+        
+        shifts.forEach(shift => {
+            // Định dạng lại tiền tệ cho dễ nhìn trong Excel (bỏ dấu chấm)
+            const cleanSalary = shift.salary; 
+            const row = `${formatDate(shift.date)},${shift.start},${shift.end},${shift.hours},${cleanSalary}`;
+            csvContent += row + "\n";
+        });
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        link.setAttribute("download", `bang_cong_${currentUser || 'data'}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showToast('success', 'Đã tải xuống file CSV (Excel)!');
-    }
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bang_cong_${currentUser || 'data'}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showToast('success', 'Đã tải xuống file CSV (Excel)!');
+    }
 
-    function updateHeader() {
-        const total = shifts.reduce((sum, s) => sum + s.salary, 0);
-        document.getElementById('headerTotalSalary').innerText = formatMoney(total);
-    }
+    function updateHeader() {
+        const total = shifts.reduce((sum, s) => sum + s.salary, 0);
+        document.getElementById('headerTotalSalary').innerText = formatMoney(total);
+    }
 
-    // Helper functions
-    function formatMoney(amount) {
-        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }).replace('₫', '');
-    }
-    function formatDate(dateString) {
-        const [year, month, day] = dateString.split('-');
-        return `${day}/${month}/${year}`;
-    }
-    function vibrate() { if (navigator.vibrate) navigator.vibrate(10); }
+    // Helper functions
+    function formatMoney(amount) {
+        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }).replace('₫', '');
+    }
+    function formatDate(dateString) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(10); }
 
-    function showToast(type, message) {
-        const container = document.getElementById('toast-container');
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.innerHTML = type === 'success' ? `<i class="fa-solid fa-circle-check"></i> ${message}` : `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
-        container.appendChild(toast);
-        requestAnimationFrame(() => toast.classList.add('show'));
-        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
-    }
+    function showToast(type, message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = type === 'success' ? `<i class="fa-solid fa-circle-check"></i> ${message}` : `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
+    }
 
-    const modal = document.getElementById('confirmModal');
-    const modalMsg = document.getElementById('modalMessage');
-    const confirmBtn = document.getElementById('confirmBtnAction');
-    function showModal(message, actionCallback) {
-        modalMsg.innerText = message;
-        modal.style.display = 'flex';
-        confirmBtn.onclick = () => { actionCallback(); closeModal(); };
-    }
-    function closeModal() { modal.style.display = 'none'; confirmBtn.onclick = null; }
-    window.onclick = function(event) { if (event.target == modal) closeModal(); }
-    
-    
+    const modal = document.getElementById('confirmModal');
+    const modalMsg = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('confirmBtnAction');
+    function showModal(message, actionCallback) {
+        modalMsg.innerText = message;
+        modal.style.display = 'flex';
+        confirmBtn.onclick = () => { actionCallback(); closeModal(); };
+    }
+    function closeModal() { modal.style.display = 'none'; confirmBtn.onclick = null; }
+    window.onclick = function(event) { if (event.target == modal) closeModal(); }
+
+
 </script>
 <script type="module">
-    // Triệu hồi các phần tử DOM cho Module
+    // Triệu hồi các phần tử DOM cho Module
 const loader = document.getElementById('loading-overlay');
 
 // Định nghĩa hàm hiển thị loading
 window.showLoading = () => {
-    if (loader) {
-        loader.style.display = 'flex';
-        // Ép trình duyệt render lại trước khi đổi opacity để có hiệu ứng mượt
-        setTimeout(() => loader.style.opacity = '1', 10);
-    }
+    if (loader) {
+        loader.style.display = 'flex';
+        // Ép trình duyệt render lại trước khi đổi opacity để có hiệu ứng mượt
+        setTimeout(() => loader.style.opacity = '1', 10);
+    }
 };
 
 // Định nghĩa hàm ẩn loading
 window.hideLoading = () => {
-    if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 300); // Đợi 0.3s khớp với transition trong CSS
-    }
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
+            loader.style.display = 'none';
+        }, 300); // Đợi 0.3s khớp với transition trong CSS
+    }
 };
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-  const firebaseConfig = { 
-      apiKey: "AIzaSyCC6Wpc6CcILRGII8ON8cHiUflJWAzjHu0", 
-      authDomain: "pro-timekeeper.firebaseapp.com", 
-      projectId: "pro-timekeeper", 
-      storageBucket: "pro-timekeeper.firebasestorage.app", 
-      messagingSenderId: "662214462453", 
-      appId: "1:662214462453:web:7ff481b7e84f14de4baebc", 
-      measurementId: "G-2E62GB1MJK" 
-  };
+  const firebaseConfig = { 
+      apiKey: "AIzaSyCC6Wpc6CcILRGII8ON8cHiUflJWAzjHu0", 
+      authDomain: "pro-timekeeper.firebaseapp.com", 
+      projectId: "pro-timekeeper", 
+      storageBucket: "pro-timekeeper.firebasestorage.app", 
+      messagingSenderId: "662214462453", 
+      appId: "1:662214462453:web:7ff481b7e84f14de4baebc", 
+      measurementId: "G-2E62GB1MJK" 
+  };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-  // --- ĐỒNG BỘ LÊN CLOUD ---
-  window.syncShiftsToCloud = async () => {
-    if (!auth.currentUser) return;
-    try {
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await setDoc(userRef, { 
-        shifts: shifts,
-        lastUpdate: new Date()
-      }, { merge: true });
-    } catch (e) {
-      console.error("Lỗi đồng bộ:", e);
-    }
-  };
+  // --- ĐỒNG BỘ LÊN CLOUD ---
+  window.syncShiftsToCloud = async () => {
+    if (!auth.currentUser) return;
+    try {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await setDoc(userRef, { 
+        shifts: shifts,
+        lastUpdate: new Date()
+      }, { merge: true });
+    } catch (e) {
+      console.error("Lỗi đồng bộ:", e);
+    }
+  };
 
- window.syncShiftsFromCloud = async () => {
+  window.syncShiftsFromCloud = async () => {
     if (!auth.currentUser) return;
     try {
         const userRef = doc(db, "users", auth.currentUser.uid);
@@ -1017,62 +1053,62 @@ window.hideLoading = () => {
         console.error("Lỗi tải dữ liệu từ Cloud:", e);
     }
 };
-  window.handleAuthAction = async () => {
-    if (typeof vibrate === "function") vibrate();
-    const userVal = document.getElementById('authUsername').value.trim();
-    const pass = document.getElementById('authPassword').value;
-    
-    if (!userVal || !pass) return showToast('error', 'Vui lòng nhập đủ thông tin!');
+  window.handleAuthAction = async () => {
+    if (typeof vibrate === "function") vibrate();
+    const userVal = document.getElementById('authUsername').value.trim();
+    const pass = document.getElementById('authPassword').value;
+    
+    if (!userVal || !pass) return showToast('error', 'Vui lòng nhập đủ thông tin!');
 
-    const email = userVal + "@pro.com";
-    if (typeof showLoading === "function") showLoading(); 
+    const email = userVal + "@pro.com";
+    if (typeof showLoading === "function") showLoading(); 
 
-    try {
-      if (isRegisterMode) {
-        // Kiểm tra xác nhận mật khẩu trước khi gửi lên Firebase
-        const confirmPass = document.getElementById('authConfirmPass').value;
-        if (pass !== confirmPass) {
-            if (typeof hideLoading === "function") hideLoading();
-            return showToast('error', 'Mật khẩu nhập lại không khớp!');
-        }
-        
-        await createUserWithEmailAndPassword(auth, email, pass);
-        showToast('success', 'Đăng ký thành công!');
-      } else {
-        await signInWithEmailAndPassword(auth, email, pass);
-        showToast('success', 'Chào mừng quay trở lại!');
-      }
-    } catch (error) {
-      if (typeof hideLoading === "function") hideLoading();
-      
-      // Xử lý từng mã lỗi cụ thể của Firebase
-      let message = 'Đã xảy ra lỗi không xác định!';
-      
-      switch (error.code) {
-        case 'auth/email-already-in-use':
-          message = 'Tên tài khoản này đã có người sử dụng!';
-          break;
-        case 'auth/weak-password':
-          message = 'Mật khẩu phải có ít nhất 6 ký tự!';
-          break;
-        case 'auth/invalid-email':
-          message = 'Tên tài khoản chứa ký tự không hợp lệ!';
-          break;
-        case 'auth/wrong-password':
-        case 'auth/user-not-found':
-        case 'auth/invalid-credential':
-          message = 'Tài khoản hoặc mật khẩu không chính xác!';
-          break;
-        default:
-          message = error.message;
-      }
-      
-      showToast('error', message);
-    }
+    try {
+      if (isRegisterMode) {
+        // Kiểm tra xác nhận mật khẩu trước khi gửi lên Firebase
+        const confirmPass = document.getElementById('authConfirmPass').value;
+        if (pass !== confirmPass) {
+            if (typeof hideLoading === "function") hideLoading();
+            return showToast('error', 'Mật khẩu nhập lại không khớp!');
+        }
+        
+        await createUserWithEmailAndPassword(auth, email, pass);
+        showToast('success', 'Đăng ký thành công!');
+      } else {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showToast('success', 'Chào mừng quay trở lại!');
+      }
+    } catch (error) {
+      if (typeof hideLoading === "function") hideLoading();
+      
+      // Xử lý từng mã lỗi cụ thể của Firebase
+      let message = 'Đã xảy ra lỗi không xác định!';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'Tên tài khoản này đã có người sử dụng!';
+          break;
+        case 'auth/weak-password':
+          message = 'Mật khẩu phải có ít nhất 6 ký tự!';
+          break;
+        case 'auth/invalid-email':
+          message = 'Tên tài khoản chứa ký tự không hợp lệ!';
+          break;
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential':
+          message = 'Tài khoản hoặc mật khẩu không chính xác!';
+          break;
+        default:
+          message = error.message;
+      }
+      
+      showToast('error', message);
+    }
 };
 
-  // Lắng nghe trạng thái đăng nhập
-  onAuthStateChanged(auth, async (user) => {
+  // Lắng nghe trạng thái đăng nhập
+ onAuthStateChanged(auth, async (user) => {
     if (user) {
         window.currentUser = user.email.split('@')[0];
         localStorage.setItem('smartCurrentUser', window.currentUser);
@@ -1087,20 +1123,19 @@ window.hideLoading = () => {
         hideLoading();
     }
 });
+  window.logoutApp = () => {
+    signOut(auth).then(() => {
+        localStorage.removeItem('smartCurrentUser');
+        location.reload();
+    });
+  };
 
-  window.logoutApp = () => {
-    signOut(auth).then(() => {
-        localStorage.removeItem('smartCurrentUser');
-        location.reload();
-    });
-  };
-
-  // Ghi đè hàm addShift để tự động lưu
-  const oldAddShift = window.addShift;
-  window.addShift = () => {
-      if (typeof oldAddShift === "function") oldAddShift();
-      window.syncShiftsToCloud();
-  };
+  // Ghi đè hàm addShift để tự động lưu
+  const oldAddShift = window.addShift;
+  window.addShift = () => {
+      if (typeof oldAddShift === "function") oldAddShift();
+      window.syncShiftsToCloud();
+  };
 </script>
 </body>
 </html>
