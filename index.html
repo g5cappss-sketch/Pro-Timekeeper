@@ -1008,12 +1008,13 @@ window.hideLoading = () => {
         
         if (docSnap.exists()) {
             const cloudData = docSnap.data();
-            // Gán thẳng vào window để toàn app đều thấy
-            window.shifts = cloudData.shifts || []; 
+            // Gán trực tiếp vào biến shifts toàn cục
+            shifts = cloudData.shifts || []; 
+            // Cập nhật giao diện ngay lập tức
             if (typeof updateAllViews === "function") updateAllViews(); 
         }
     } catch (e) {
-        console.error("Lỗi tải mây:", e);
+        console.error("Lỗi tải dữ liệu từ Cloud:", e);
     }
 };
   window.handleAuthAction = async () => {
@@ -1071,20 +1072,21 @@ window.hideLoading = () => {
 };
 
   // Lắng nghe trạng thái đăng nhập
-  onAuthStateChanged(auth, async (user) => {
+ onAuthStateChanged(auth, async (user) => {
     if (user) {
         window.currentUser = user.email.split('@')[0];
         localStorage.setItem('smartCurrentUser', window.currentUser);
         
-        // BƯỚC QUAN TRỌNG: Phải await để tải xong dữ liệu
-        showLoading(); // Hiện xoay tròn lúc đang tải từ Cloud
+        showLoading(); // Hiện xoay tròn để chờ tải
+        
+        // 1. Tải dữ liệu từ mây về trước
         await syncShiftsFromCloud(); 
         
+        // 2. Sau khi có dữ liệu mới mở App
         unlockApp(); 
         hideLoading();
     }
 });
-
   window.logoutApp = () => {
     signOut(auth).then(() => {
         localStorage.removeItem('smartCurrentUser');
