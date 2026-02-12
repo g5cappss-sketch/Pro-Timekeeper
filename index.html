@@ -1016,7 +1016,6 @@ window.hideLoading = () => {
     }
   };
 
-  // Hàm xử lý Đăng nhập/Đăng ký
   window.handleAuthAction = async () => {
     if (typeof vibrate === "function") vibrate();
     const userVal = document.getElementById('authUsername').value.trim();
@@ -1029,6 +1028,13 @@ window.hideLoading = () => {
 
     try {
       if (isRegisterMode) {
+        // Kiểm tra xác nhận mật khẩu trước khi gửi lên Firebase
+        const confirmPass = document.getElementById('authConfirmPass').value;
+        if (pass !== confirmPass) {
+            if (typeof hideLoading === "function") hideLoading();
+            return showToast('error', 'Mật khẩu nhập lại không khớp!');
+        }
+        
         await createUserWithEmailAndPassword(auth, email, pass);
         showToast('success', 'Đăng ký thành công!');
       } else {
@@ -1037,9 +1043,32 @@ window.hideLoading = () => {
       }
     } catch (error) {
       if (typeof hideLoading === "function") hideLoading();
-      showToast('error', 'Tài khoản hoặc mật khẩu không đúng!');
+      
+      // Xử lý từng mã lỗi cụ thể của Firebase
+      let message = 'Đã xảy ra lỗi không xác định!';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'Tên tài khoản này đã có người sử dụng!';
+          break;
+        case 'auth/weak-password':
+          message = 'Mật khẩu phải có ít nhất 6 ký tự!';
+          break;
+        case 'auth/invalid-email':
+          message = 'Tên tài khoản chứa ký tự không hợp lệ!';
+          break;
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential':
+          message = 'Tài khoản hoặc mật khẩu không chính xác!';
+          break;
+        default:
+          message = error.message;
+      }
+      
+      showToast('error', message);
     }
-  };
+};
 
   // Lắng nghe trạng thái đăng nhập
   onAuthStateChanged(auth, async (user) => {
