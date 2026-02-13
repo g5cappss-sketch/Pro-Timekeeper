@@ -841,6 +841,12 @@
         showModal('Bạn có chắc muốn xóa ca làm việc này?', () => {
             shifts = shifts.filter(s => s.id !== itemToDelete);
             saveUserData();
+            
+            // --- FIX: Đồng bộ ngay lập tức sau khi xóa ---
+            if (typeof window.syncShiftsToCloud === 'function') {
+                window.syncShiftsToCloud();
+            }
+
             updateAllViews();
             showToast('success', 'Đã xóa thành công!');
         });
@@ -852,6 +858,12 @@
         showModal('Toàn bộ dữ liệu của bạn sẽ bị xóa?', () => {
             shifts = [];
             saveUserData();
+
+            // --- FIX: Đồng bộ ngay lập tức sau khi xóa ---
+            if (typeof window.syncShiftsToCloud === 'function') {
+                window.syncShiftsToCloud();
+            }
+
             updateAllViews();
             showToast('success', 'Đã làm sạch dữ liệu!');
         });
