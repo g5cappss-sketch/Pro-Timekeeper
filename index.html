@@ -3,345 +3,447 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#4F46E5">
-    <title>Pro Timekeeper Ultimate</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Pro Timekeeper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4338ca;
-            --secondary: #ec4899;
-            --bg-body: #f8fafc;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --nav-height: 75px;
+            --primary: #4F46E5;
+            --primary-light: #EEF2FF;
+            --success: #10B981;
+            --danger: #EF4444;
+            --bg: #F3F4F6;
+            --card-bg: #FFFFFF;
+            --text-main: #111827;
+            --text-sub: #6B7280;
+            --nav-height: 70px;
         }
 
-        /* DARK MODE VARIABLES */
-        body.dark-mode {
-            --bg-body: #0f172a;
-            --bg-card: #1e293b;
-            --text-main: #f1f5f9;
-            --text-sub: #94a3b8;
-            --border: #334155;
-            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--bg-body);
+            background-color: var(--bg);
             color: var(--text-main);
-            margin: 0; padding: 0;
-            padding-bottom: calc(var(--nav-height) + 30px);
-            user-select: none; overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s;
+            margin: 0;
+            padding: 0;
+            padding-bottom: calc(var(--nav-height) + 20px);
+            user-select: none;
+            overflow-x: hidden;
         }
 
-        /* --- UTILITIES --- */
-        .flex-between { display: flex; justify-content: space-between; align-items: center; }
-        .flex-center { display: flex; justify-content: center; align-items: center; }
-        .text-gradient { background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        /* --- LOGIN OVERLAY --- */
+        #loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.85);
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            transition: opacity 0.3s ease;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--primary-light);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-weight: 600;
+            color: var(--primary);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            transition: opacity 0.3s ease;
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 350px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .login-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- HEADER --- */
         .app-header {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white; padding: 20px 20px 50px;
-            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px;
-            box-shadow: 0 10px 30px -10px var(--primary);
-            position: relative; z-index: 10;
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            padding: 25px 20px 40px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.4);
+            position: relative;
+            z-index: 10;
         }
-        
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .btn-theme { background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; backdrop-filter: blur(5px); }
 
-        .realtime-clock { font-size: 3rem; font-weight: 800; letter-spacing: -2px; line-height: 1; text-align: center; margin: 10px 0; text-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .date-display { text-align: center; font-size: 0.9rem; opacity: 0.9; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; }
-
-        /* --- PROGRESS BAR --- */
-        .goal-container { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 5px; margin-top: 15px; position: relative; overflow: hidden; }
-        .goal-bar { height: 6px; background: white; border-radius: 10px; width: 0%; transition: width 1s ease-in-out; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        .goal-text { font-size: 0.7rem; text-align: center; margin-top: 5px; opacity: 0.8; }
+        .welcome-text { font-size: 0.9rem; opacity: 0.9; margin-bottom: 5px; }
+        .salary-display { font-size: 2.2rem; font-weight: 800; letter-spacing: -1px; }
 
         /* --- CONTAINER --- */
-        .container { padding: 0 20px; margin-top: -40px; position: relative; z-index: 20; }
+        .container {
+            padding: 0 15px;
+            margin-top: -30px;
+            position: relative;
+            z-index: 20;
+        }
 
         /* --- CARDS --- */
         .card {
-            background: var(--bg-card); border-radius: 24px;
-            padding: 20px; margin-bottom: 20px;
-            box-shadow: var(--shadow); border: 1px solid var(--border);
-            transition: transform 0.2s, background-color 0.3s;
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            animation: slideUp 0.3s ease-out;
         }
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
         .card-title {
-            font-size: 0.9rem; font-weight: 700; color: var(--text-sub);
-            text-transform: uppercase; letter-spacing: 0.5px;
-            margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
         }
 
-        /* --- FORM ELEMENTS --- */
-        .input-group { margin-bottom: 15px; position: relative; }
-        .input-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+        /* --- INPUTS & SELECTS --- */
+        .input-group { margin-bottom: 15px; text-align: left; }
+        .input-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-sub); margin-bottom: 8px; }
         
-        input, select, textarea {
-            width: 100%; padding: 14px 14px 14px 45px;
-            border: 2px solid var(--border); border-radius: 16px;
-            font-size: 1rem; font-family: inherit; color: var(--text-main);
-            background: var(--bg-body); transition: all 0.2s;
-            appearance: none;
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: #F9FAFB;
+            transition: all 0.2s;
         }
-        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: var(--bg-card); box-shadow: 0 0 0 4px var(--primary-light); }
-        
-        /* Time Picker Custom */
-        .time-wrapper { display: flex; gap: 10px; align-items: center; background: var(--bg-body); padding: 5px; border-radius: 16px; border: 2px solid var(--border); }
-        .time-select { flex: 1; border: none; background: transparent; text-align: center; font-weight: 700; font-size: 1.2rem; padding: 10px 0; cursor: pointer; color: var(--text-main); }
-        
-        /* Tag Selector */
-        .tag-scroller { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; -webkit-overflow-scrolling: touch; margin-bottom: 15px; }
-        .tag-radio { display: none; }
-        .tag-label {
-            padding: 8px 16px; border-radius: 20px; background: var(--bg-body);
-            color: var(--text-sub); font-size: 0.85rem; font-weight: 600;
-            border: 1px solid var(--border); white-space: nowrap; cursor: pointer;
-            transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+        input:focus { border-color: var(--primary); background: white; outline: none; }
+
+        /* FIXED: CSS cho Time Picker để hiển thị rõ ràng */
+        .time-select {
+            flex: 1;
+            border: none;
+            background: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: center;
+            padding: 10px 0;
+            appearance: auto; /* Quan trọng: Hiển thị mũi tên chọn */
+            border-radius: 8px;
+            cursor: pointer;
         }
-        .tag-radio:checked + .tag-label { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); box-shadow: 0 4px 10px rgba(99, 102, 241, 0.4); }
+
+        .time-picker-row {
+            display: flex;
+            gap: 5px;
+            background: #F9FAFB;
+            padding: 5px;
+            border-radius: 12px;
+            border: 2px solid #E5E7EB;
+            align-items: center;
+        }
+        .colon { font-weight: bold; align-self: center; color: var(--text-sub); }
 
         /* --- BUTTONS --- */
         .btn {
-            width: 100%; padding: 16px; border-radius: 16px; border: none;
-            font-weight: 700; font-size: 1rem; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: transform 0.1s, box-shadow 0.2s;
+            width: 100%;
+            padding: 16px;
+            border-radius: 14px;
+            border: none;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: transform 0.1s;
         }
-        .btn:active { transform: scale(0.96); }
-        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; box-shadow: 0 8px 20px -5px rgba(99, 102, 241, 0.5); }
-        .btn-danger { background: #fee2e2; color: var(--danger); }
-        .btn-ghost { background: transparent; color: var(--text-sub); border: 1px solid var(--border); }
+        .btn:active { transform: scale(0.98); }
 
-        /* --- HISTORY --- */
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); }
+        .btn-danger { background: #FEE2E2; color: var(--danger); }
+        .btn-icon { width: 40px; height: 40px; padding: 0; border-radius: 10px; }
+        
+        .btn-login {
+            background: var(--text-main);
+            color: white;
+            margin-top: 10px;
+        }
+        
+        .link-text {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 25px;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        /* --- TABLE EXCEL STYLE --- */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .excel-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 400px;
+            font-size: 0.9rem;
+        }
+
+        .excel-table th {
+            background-color: #F3F4F6;
+            color: var(--text-sub);
+            font-weight: 700;
+            text-align: left;
+            padding: 12px;
+            border-bottom: 2px solid #E5E7EB;
+            white-space: nowrap;
+        }
+
+        .excel-table td {
+            padding: 12px;
+            border-bottom: 1px solid #E5E7EB;
+            color: var(--text-main);
+        }
+
+        .excel-table tr:last-child td { border-bottom: none; }
+        .excel-table tr:nth-child(even) { background-color: #F9FAFB; }
+        
+        .excel-table td:last-child {
+            font-weight: 700;
+            color: var(--success);
+            text-align: right;
+        }
+        .excel-table th:last-child { text-align: right; }
+
+        /* --- HISTORY LIST --- */
         .history-list { list-style: none; padding: 0; margin: 0; }
         .history-item {
-            display: flex; align-items: center; padding: 15px 0;
-            border-bottom: 1px dashed var(--border); position: relative;
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #F3F4F6;
         }
         .history-item:last-child { border-bottom: none; }
-        
-        .history-date {
-            background: var(--primary-light); color: var(--primary);
-            width: 55px; height: 55px; border-radius: 14px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-weight: 800; margin-right: 15px; flex-shrink: 0;
-        }
-        
-        .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 6px; margin-left: 5px; font-weight: 600; }
-        .badge-ot { background: #fef3c7; color: #d97706; }
-        .badge-norm { background: #dcfce7; color: #166534; }
 
-        /* --- BOTTOM NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 400px; height: 70px;
-            background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px);
-            display: flex; justify-content: space-around; align-items: center;
-            border-radius: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            z-index: 100; border: 1px solid rgba(255,255,255,0.5);
+        .date-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 15px;
+            flex-shrink: 0;
         }
-        body.dark-mode .bottom-nav { background: rgba(30, 41, 59, 0.9); border-color: rgba(255,255,255,0.1); }
+        .date-badge span:first-child { font-size: 1.1rem; line-height: 1; }
+        .date-badge span:last-child { font-size: 0.7rem; text-transform: uppercase; }
+
+        .item-info { flex: 1; }
+        .item-time { font-size: 0.9rem; font-weight: 600; }
+        .item-duration { font-size: 0.8rem; color: var(--text-sub); background: #F3F4F6; padding: 2px 6px; border-radius: 4px; margin-left: 5px; }
+        .item-money { color: var(--success); font-weight: 700; display: block; margin-top: 2px; }
+
+        /* --- BOTTOM NAVIGATION --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: var(--nav-height);
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+        }
 
         .nav-btn {
-            background: none; border: none; display: flex; flex-direction: column;
-            align-items: center; color: var(--text-sub); font-size: 0.7rem;
-            font-weight: 600; gap: 4px; padding: 10px; width: 25%; transition: all 0.3s;
+            background: none;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #9CA3AF;
+            font-size: 0.7rem;
+            font-weight: 600;
+            gap: 5px;
+            padding: 10px;
+            width: 25%;
         }
-        .nav-btn i { font-size: 1.4rem; transition: transform 0.3s; }
+        
+        .nav-btn i { font-size: 1.3rem; transition: transform 0.2s; }
         .nav-btn.active { color: var(--primary); }
-        .nav-btn.active i { transform: translateY(-5px); filter: drop-shadow(0 4px 6px rgba(99, 102, 241, 0.4)); }
+        .nav-btn.active i { transform: translateY(-3px); }
 
-        /* --- OTHERS --- */
-        .table-responsive { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); }
-        .excel-table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        .excel-table th { background: var(--bg-body); padding: 12px; text-align: left; font-size: 0.8rem; color: var(--text-sub); }
-        .excel-table td { padding: 12px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+        /* --- TOAST & MODAL --- */
+        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; max-width: 400px; }
+        .toast { background: #333; color: white; padding: 12px 20px; border-radius: 50px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 10px; font-size: 0.9rem; opacity: 0; transform: translateY(-20px); transition: all 0.3s; pointer-events: none; }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
 
-        /* Login Screen */
-        #login-screen { position: fixed; inset: 0; background: var(--bg-body); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; transition: opacity 0.5s; }
-        .login-card { width: 100%; max-width: 400px; text-align: center; }
-        .logo-bounce { animation: bounce 2s infinite; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(2px); }
+        .modal-box { background: white; width: 85%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; animation: popIn 0.2s; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
 
-        /* Loading */
-        #loading-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
-        
-        /* Toast */
-        #toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 11000; width: 90%; }
-        .toast { background: #1e293b; color: white; padding: 15px 20px; border-radius: 50px; display: flex; align-items: center; gap: 10px; margin-bottom: 10px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); animation: slideDown 0.3s; }
-        @keyframes slideDown { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-        .section { display: none; padding-bottom: 80px; }
+        .section { display: none; }
         .section.active { display: block; }
-        
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: var(--bg-card); padding: 15px; border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-        .stat-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; font-size: 1.2rem; }
+
+        .settings-footer {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+            color: #9CA3AF;
+            font-size: 0.8rem;
+        }
+        .settings-footer p { margin: 3px 0; }
+        .settings-footer .version { font-family: monospace; background: #E5E7EB; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
-
 <div id="loading-overlay">
     <div class="spinner"></div>
+    <div class="loading-text">Đang xử lý dữ liệu...</div>
 </div>
-
 <div id="login-screen">
     <div class="login-card">
-        <div class="login-logo logo-bounce" style="width: 80px; height: 80px; background: linear-gradient(135deg, #4F46E5, #ec4899); border-radius: 24px; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: white; box-shadow: 0 20px 40px -10px var(--primary);">
-            <i class="fa-solid fa-clock"></i>
-        </div>
-        <h1 style="margin: 0; font-size: 1.8rem; background: linear-gradient(to right, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Pro Timekeeper</h1>
-        <p style="color: var(--text-sub); margin-bottom: 30px;">Quản lý thời gian, tối ưu thu nhập</p>
+        <div class="login-logo"><i class="fa-solid fa-shield-halved"></i></div>
+        <h2 id="authTitle" style="margin: 0; font-size: 1.5rem;">Đăng nhập</h2>
+        <p id="authSubtitle" style="color: #6B7280; font-size: 0.9rem; margin-top: 5px; margin-bottom: 20px;">Quản lý thời gian chuyên nghiệp</p>
         
         <div class="input-group">
-            <i class="fa-solid fa-user input-icon"></i>
             <input type="text" id="authUsername" placeholder="Tên tài khoản">
         </div>
         <div class="input-group">
-            <i class="fa-solid fa-lock input-icon"></i>
             <input type="password" id="authPassword" placeholder="Mật khẩu">
         </div>
+        
         <div class="input-group" id="confirmPassGroup" style="display: none;">
-            <i class="fa-solid fa-shield-halved input-icon"></i>
             <input type="password" id="authConfirmPass" placeholder="Nhập lại mật khẩu">
         </div>
 
-        <button class="btn btn-primary" onclick="handleAuthAction()">
-            <span id="btnAuthText">Đăng Nhập Ngay</span> <i class="fa-solid fa-arrow-right"></i>
+        <button class="btn btn-login" onclick="handleAuthAction()">
+            <span id="btnAuthText">Đăng nhập</span>
         </button>
 
-        <p class="link-text" onclick="toggleAuthMode()" style="margin-top: 20px; cursor: pointer; color: var(--text-sub); font-size: 0.9rem;">
-            <span id="toggleAuthBtn">Chưa có tài khoản? <b>Đăng ký</b></span>
-        </p>
+        <span class="link-text" id="toggleAuthBtn" onclick="toggleAuthMode()">Chưa có tài khoản? Đăng ký</span>
     </div>
 </div>
 
 <div id="main-app" style="display: none;">
     <header class="app-header">
-        <div class="header-top">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800;">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <div>
-                    <div style="font-size: 0.8rem; opacity: 0.8;">Xin chào,</div>
-                    <div style="font-weight: 700; font-size: 1.1rem;" id="displayUserName">User</div>
-                </div>
-            </div>
-            <button class="btn-theme" onclick="toggleDarkMode()"><i class="fa-solid fa-moon"></i></button>
-        </div>
-
-        <div class="realtime-clock" id="liveClock">00:00:00</div>
-        <div class="date-display" id="liveDate">Thứ Hai, 01/01/2026</div>
-
-        <div class="goal-container">
-            <div class="flex-between" style="padding: 0 5px;">
-                <span class="goal-text" style="color:white">Thu nhập tháng</span>
-                <span class="goal-text" style="color:white; font-weight:bold;" id="headerTotalSalary">0đ</span>
-            </div>
-            <div style="background: rgba(255,255,255,0.2); height: 6px; border-radius: 10px; margin-top: 5px;">
-                <div class="goal-bar" id="incomeProgressBar"></div>
-            </div>
-            <div class="goal-text" id="goalPercentage">0% mục tiêu</div>
-        </div>
+        <div class="welcome-text"><i class="fa-regular fa-sun"></i> Xin chào, <span id="displayUserName">Bạn</span></div>
+        <div style="font-size: 0.8rem; opacity: 0.7; text-transform: uppercase;">Lương tạm tính tháng này</div>
+        <div class="salary-display" id="headerTotalSalary">0</div>
     </header>
 
     <div class="container">
+        
         <div id="tab-checkin" class="section active">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #eff6ff; color: var(--primary);"><i class="fa-solid fa-hourglass-half"></i></div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub);">Tổng giờ</div>
-                    <div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);" id="quickTotalHours">0h</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: #f0fdf4; color: var(--success);"><i class="fa-solid fa-money-bill-wave"></i></div>
-                    <div style="font-size: 0.8rem; color: var(--text-sub);">Số ca làm</div>
-                    <div style="font-weight: 800; font-size: 1.2rem; color: var(--text-main);" id="quickTotalShifts">0</div>
-                </div>
-            </div>
-
             <div class="card">
-                <div class="card-title"><i class="fa-solid fa-fingerprint"></i> Chấm công hôm nay</div>
-                
-                <div class="tag-scroller">
-                    <input type="radio" name="shiftType" id="type1" value="norm" class="tag-radio" checked>
-                    <label for="type1" class="tag-label"><i class="fa-solid fa-briefcase"></i> Chính thức</label>
-                    
-                    <input type="radio" name="shiftType" id="type2" value="ot" class="tag-radio">
-                    <label for="type2" class="tag-label"><i class="fa-solid fa-fire"></i> Tăng ca (x1.5)</label>
-                    
-                    <input type="radio" name="shiftType" id="type3" value="night" class="tag-radio">
-                    <label for="type3" class="tag-label"><i class="fa-solid fa-moon"></i> Ca đêm</label>
-                </div>
-
+                <div class="card-title"><i class="fa-solid fa-calendar-check"></i> Chấm công hôm nay</div>
                 <div class="input-group">
-                    <i class="fa-regular fa-calendar input-icon"></i>
                     <input type="date" id="workDate">
                 </div>
-
-                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                     <div style="flex:1">
-                        <label class="input-label" style="font-size: 0.75rem;">GIỜ VÀO</label>
-                        <div class="time-wrapper">
-                            <select id="startH" class="time-select"></select>
-                            <span style="font-weight:bold">:</span>
-                            <select id="startM" class="time-select"></select>
+                        <label class="input-label">Giờ vào</label>
+                        <div class="time-picker-row">
+                            <select id="startH" class="time-select"></select><span class="colon">:</span><select id="startM" class="time-select"></select>
                         </div>
                     </div>
                     <div style="flex:1">
-                        <label class="input-label" style="font-size: 0.75rem;">GIỜ RA</label>
-                        <div class="time-wrapper">
-                            <select id="endH" class="time-select"></select>
-                            <span style="font-weight:bold">:</span>
-                            <select id="endM" class="time-select"></select>
+                        <label class="input-label">Giờ ra</label>
+                        <div class="time-picker-row">
+                            <select id="endH" class="time-select"></select><span class="colon">:</span><select id="endM" class="time-select"></select>
                         </div>
                     </div>
                 </div>
-
-                <div class="input-group">
-                    <i class="fa-solid fa-note-sticky input-icon"></i>
-                    <input type="text" id="shiftNote" placeholder="Ghi chú (Ví dụ: Đến muộn 5p)">
-                </div>
-
-                <button class="btn btn-primary" onclick="addShift()">
-                    <i class="fa-solid fa-check-circle"></i> XÁC NHẬN CHẤM CÔNG
-                </button>
+                <button class="btn btn-primary" onclick="addShift()"><i class="fa-solid fa-plus"></i> Xác Nhận</button>
             </div>
 
-            <div class="card">
-                <div class="card-title">
-                    <span><i class="fa-solid fa-chart-line"></i> Biểu đồ thu nhập</span>
-                    <span style="font-size: 0.7rem; background: var(--bg-body); padding: 2px 8px; border-radius: 10px;">7 ngày qua</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
+                    <div style="color: var(--primary); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-clock"></i></div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">Tổng giờ</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalHours">0h</div>
                 </div>
-                <div style="height: 200px;">
-                    <canvas id="incomeChart"></canvas>
+                <div class="card" style="margin-bottom: 0; padding: 15px; text-align: center;">
+                    <div style="color: var(--success); font-size: 1.2rem; margin-bottom: 5px;"><i class="fa-solid fa-briefcase"></i></div>
+                    <div style="font-size: 0.8rem; color: var(--text-sub);">Số ca</div>
+                    <div style="font-weight: 700; font-size: 1.1rem;" id="quickTotalShifts">0</div>
                 </div>
             </div>
         </div>
@@ -349,11 +451,11 @@
         <div id="tab-history" class="section">
             <div class="card">
                 <div class="card-title">
-                    <span><i class="fa-solid fa-list-ul"></i> Nhật ký làm việc</span>
-                    <button class="btn-ghost" style="width: auto; padding: 5px 10px; font-size: 0.7rem; border-radius: 8px;" onclick="confirmClear()">Xóa hết</button>
+                    <span><i class="fa-solid fa-list"></i> Danh sách thẻ</span>
+                    <button class="btn btn-danger" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="confirmClear()"><i class="fa-solid fa-trash"></i> Xóa hết</button>
                 </div>
-                <div id="emptyState" style="text-align: center; padding: 40px 0; opacity: 0.5;">
-                    <i class="fa-solid fa-box-open" style="font-size: 3rem; margin-bottom: 10px;"></i>
+                <div id="emptyState" style="text-align: center; padding: 30px 0; color: #9CA3AF; display: none;">
+                    <i class="fa-regular fa-folder-open" style="font-size: 2rem; margin-bottom: 10px;"></i>
                     <p>Chưa có dữ liệu nào</p>
                 </div>
                 <ul class="history-list" id="historyList"></ul>
@@ -363,22 +465,25 @@
         <div id="tab-table" class="section">
             <div class="card">
                 <div class="card-title">
-                    <span><i class="fa-solid fa-table"></i> Bảng lương chi tiết</span>
-                    <button class="btn-ghost" style="width: auto; padding: 5px 10px; font-size: 0.7rem; border-radius: 8px; color: var(--success); border-color: var(--success);" onclick="exportToCSV()">
+                    <span><i class="fa-solid fa-table"></i> Bảng tổng hợp</span>
+                    <button class="btn btn-success" style="width: auto; padding: 8px 12px; font-size: 0.8rem;" onclick="exportToCSV()">
                         <i class="fa-solid fa-file-excel"></i> Xuất Excel
                     </button>
                 </div>
+                
                 <div class="table-responsive">
                     <table class="excel-table">
                         <thead>
                             <tr>
                                 <th>Ngày</th>
+                                <th>Vào</th>
+                                <th>Ra</th>
                                 <th>Giờ</th>
-                                <th>Loại</th>
                                 <th>Lương</th>
                             </tr>
                         </thead>
-                        <tbody id="excelTableBody"></tbody>
+                        <tbody id="excelTableBody">
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -386,504 +491,663 @@
 
         <div id="tab-settings" class="section">
             <div class="card">
-                <div class="card-title"><i class="fa-solid fa-sliders"></i> Cấu hình lương</div>
+                <div class="card-title"><i class="fa-solid fa-user-gear"></i> Thiết lập chung</div>
                 <div class="input-group">
-                    <i class="fa-solid fa-id-card input-icon"></i>
-                    <input type="text" id="displayNameInput" placeholder="Tên hiển thị" onchange="saveSettings()">
+                    <label class="input-label">Tên hiển thị</label>
+                    <input type="text" id="displayNameInput" placeholder="Nhập tên..." onchange="saveSettings()">
                 </div>
                 <div class="input-group">
-                    <i class="fa-solid fa-sack-dollar input-icon"></i>
-                    <input type="number" id="hourlyRate" placeholder="Lương cơ bản / giờ (VNĐ)" onchange="saveSettings()">
-                </div>
-                <div class="input-group">
-                    <i class="fa-solid fa-bullseye input-icon"></i>
-                    <input type="number" id="monthlyGoal" placeholder="Mục tiêu lương tháng (VNĐ)" onchange="saveSettings()">
+                    <label class="input-label">Lương / giờ</label>
+                    <div style="position: relative;">
+                        <input type="number" id="hourlyRate" placeholder="Ví dụ: 25000" onchange="saveSettings()" style="padding-left: 45px;">
+                        <span style="position: absolute; left: 15px; top: 14px; font-weight: bold; color: var(--success);">₫</span>
+                    </div>
                 </div>
             </div>
 
             <div class="card">
-                <div class="card-title"><i class="fa-solid fa-shield"></i> Bảo mật</div>
+                <div class="card-title"><i class="fa-solid fa-key"></i> Đổi mật khẩu</div>
                 <div class="input-group">
-                    <i class="fa-solid fa-key input-icon"></i>
-                    <input type="password" id="newPasswordInput" placeholder="Đổi mật khẩu mới">
+                    <label class="input-label">Mật khẩu mới</label>
+                    <input type="password" id="newPasswordInput" placeholder="Nhập mật khẩu mới">
                 </div>
-                <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleChangePassword()">Cập nhật</button>
+                <button class="btn btn-primary" style="margin-top: 10px;" onclick="handleChangePassword()">
+                    Cập nhật mật khẩu
+                </button>
             </div>
 
-            <button class="btn btn-danger" onclick="logoutApp()">
-                <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất an toàn
-            </button>
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-lock"></i> Bảo mật</div>
+                <button class="btn btn-danger" onclick="logoutApp()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất ngay
+                </button>
+            </div>
 
             <div class="settings-footer">
-                <p>Pro Timekeeper</p>
-                <span class="version">v2.0.0</span>
+                <p>Designed & Developed by <b>Van Giang</b></p>
+                <span class="version">Version 1.0.0</span>
             </div>
         </div>
+
     </div>
 
     <nav class="bottom-nav">
         <button class="nav-btn active" onclick="switchTab('tab-checkin', this)">
-            <i class="fa-solid fa-stopwatch"></i><span>Chấm công</span>
+            <i class="fa-solid fa-stopwatch"></i> Chấm công
         </button>
         <button class="nav-btn" onclick="switchTab('tab-history', this)">
-            <i class="fa-solid fa-clock-rotate-left"></i><span>Lịch sử</span>
+            <i class="fa-regular fa-calendar-days"></i> Lịch sử
         </button>
         <button class="nav-btn" onclick="switchTab('tab-table', this)">
-            <i class="fa-solid fa-file-invoice-dollar"></i><span>Bảng kê</span>
+            <i class="fa-solid fa-table"></i> Bảng kê
         </button>
         <button class="nav-btn" onclick="switchTab('tab-settings', this)">
-            <i class="fa-solid fa-gear"></i><span>Cài đặt</span>
+            <i class="fa-solid fa-sliders"></i> Cài đặt
         </button>
     </nav>
 </div>
 
 <div id="toast-container"></div>
+
 <div class="modal-overlay" id="confirmModal">
     <div class="modal-box">
-        <div style="font-size: 3rem; color: var(--warning); margin-bottom: 15px;"><i class="fa-solid fa-circle-exclamation"></i></div>
-        <h3 style="margin: 0 0 10px;">Xác nhận?</h3>
-        <p id="modalMessage" style="color: var(--text-sub); margin-bottom: 20px;"></p>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-ghost" onclick="closeModal()">Hủy</button>
-            <button class="btn btn-danger" id="confirmBtnAction">Thực hiện</button>
+        <div style="font-size: 3rem; color: var(--danger); margin-bottom: 10px;"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        <h3 style="margin: 0 0 10px;">Xác nhận xóa?</h3>
+        <p style="color: #6B7280; font-size: 0.9rem; margin-bottom: 20px;" id="modalMessage"></p>
+        <div class="modal-buttons">
+            <button class="btn" style="background: #F3F4F6; color: #374151;" onclick="closeModal()">Hủy</button>
+            <button class="btn btn-danger" id="confirmBtnAction">Xóa ngay</button>
         </div>
     </div>
 </div>
 
 <script>
-    /* =========================================
-       CORE LOGIC (GLOBAL SCOPE FOR IPHONE 6)
-       ========================================= */
-    window.shifts = [];
-    window.currentUser = null;
-    window.isRegisterMode = false;
-    window.chartInstance = null;
+    // --- VARIABLES STATE ---
+    let shifts = [];
+    let currentUser = null; 
+    let isRegisterMode = false;
 
-    // --- CLOCK LOGIC ---
-    function startClock() {
-        setInterval(() => {
-            const now = new Date();
-            document.getElementById('liveClock').innerText = now.toLocaleTimeString('vi-VN', { hour12: false });
-            document.getElementById('liveDate').innerText = now.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' });
-        }, 1000);
+    // --- DOM ELEMENTS ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+    
+    const authTitle = document.getElementById('authTitle');
+    const authUsername = document.getElementById('authUsername');
+    const authPassword = document.getElementById('authPassword');
+    const authConfirmPass = document.getElementById('authConfirmPass');
+    const confirmPassGroup = document.getElementById('confirmPassGroup');
+    const btnAuthText = document.getElementById('btnAuthText');
+    const toggleAuthBtn = document.getElementById('toggleAuthBtn');
+    
+    // --- FIX CHART ERROR (Đã sửa lỗi treo app tại đây) ---
+    // Kiểm tra xem thẻ canvas có tồn tại không trước khi gọi lệnh
+    const chartElement = document.getElementById('incomeChart');
+    if (typeof Chart !== 'undefined' && chartElement) {
+        const ctx = chartElement.getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
+                datasets: [{
+                    label: 'Thu nhập (VND)',
+                    data: [182000, 182000, 130000, 390000, 156000, 0, 0],
+                    backgroundColor: '#4F46E5',
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } }
+            }
+        });
+    } else {
+        console.log("Skipping Chart init: Canvas not found or library missing.");
     }
 
-    // --- DARK MODE ---
-    function toggleDarkMode() {
-        document.body.classList.toggle('dark-mode');
-        const isDark = document.body.classList.contains('dark-mode');
-        localStorage.setItem('pro_theme', isDark ? 'dark' : 'light');
-    }
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // Kiểm tra xem có phiên đăng nhập cũ không
+        const storedUser = localStorage.getItem('smartCurrentUser');
+        if (storedUser) {
+            currentUser = storedUser;
+            unlockApp(); // Tự động vào nếu đã login
+        }
+        initApp();
+    });
 
-    // --- AUTH UI ---
+    // --- AUTH LOGIC (MULTI-USER) ---
     function toggleAuthMode() {
-        window.isRegisterMode = !window.isRegisterMode;
-        const isReg = window.isRegisterMode;
-        document.getElementById('authTitle').innerText = isReg ? "Đăng Ký Tài Khoản" : "Đăng Nhập";
-        document.getElementById('confirmPassGroup').style.display = isReg ? "block" : "none";
-        document.getElementById('btnAuthText').innerText = isReg ? "Đăng Ký Ngay" : "Đăng Nhập Ngay";
-        document.getElementById('toggleAuthBtn').innerHTML = isReg ? "Đã có tài khoản? <b>Đăng nhập</b>" : "Chưa có tài khoản? <b>Đăng ký</b>";
+        isRegisterMode = !isRegisterMode;
+        if (isRegisterMode) {
+            authTitle.innerText = "Đăng ký";
+            btnAuthText.innerText = "Tạo tài khoản";
+            toggleAuthBtn.innerText = "Đã có tài khoản? Đăng nhập";
+            confirmPassGroup.style.display = "block";
+        } else {
+            authTitle.innerText = "Đăng nhập";
+            btnAuthText.innerText = "Đăng nhập";
+            toggleAuthBtn.innerText = "Chưa có tài khoản? Đăng ký";
+            confirmPassGroup.style.display = "none";
+        }
+        authUsername.value = '';
+        authPassword.value = '';
+        authConfirmPass.value = '';
     }
 
     function handleAuthAction() {
-        if(navigator.vibrate) navigator.vibrate(10);
-        const u = document.getElementById('authUsername').value.trim();
-        const p = document.getElementById('authPassword').value.trim();
-        if(!u || !p) return showToast('error', 'Vui lòng nhập đủ thông tin!');
+        vibrate();
+        const user = authUsername.value.trim();
+        const pass = authPassword.value.trim();
         
-        if (window.isRegisterMode) {
-            const cp = document.getElementById('authConfirmPass').value.trim();
-            if(p !== cp) return showToast('error', 'Mật khẩu nhập lại không khớp!');
+        if (!user || !pass) {
+            showToast('error', 'Vui lòng nhập đầy đủ thông tin!');
+            return;
         }
 
-        // Gọi Firebase Module
-        if(window.firebaseAuthAction) window.firebaseAuthAction(u, p);
+        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
+
+        if (isRegisterMode) {
+            // ĐĂNG KÝ
+            const confirm = authConfirmPass.value.trim();
+            if (pass !== confirm) {
+                showToast('error', 'Mật khẩu nhập lại không khớp!');
+                return;
+            }
+            if (usersDB[user]) {
+                showToast('error', 'Tên tài khoản này đã tồn tại!');
+                return;
+            }
+            // Tạo user mới
+            usersDB[user] = btoa(pass); 
+            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
+            showToast('success', 'Đăng ký thành công!');
+            performLogin(user);
+
+        } else {
+            // ĐĂNG NHẬP
+            if (!usersDB[user]) {
+                showToast('error', 'Tài khoản không tồn tại!');
+                return;
+            }
+            if (usersDB[user] === btoa(pass)) {
+                performLogin(user);
+            } else {
+                showToast('error', 'Sai mật khẩu!');
+            }
+        }
     }
 
-    // --- APP FLOW ---
-    function unlockApp() {
-        const theme = localStorage.getItem('pro_theme');
-        if(theme === 'dark') document.body.classList.add('dark-mode');
+    function performLogin(user) {
+    // 1. Hiển thị loading screen ngay lập tức
+    loadingOverlay.style.display = 'flex';
+    loadingOverlay.style.opacity = '1';
 
-        document.getElementById('login-screen').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('login-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-            document.getElementById('workDate').valueAsDate = new Date();
-            startClock();
-            updateAllViews();
-        }, 500);
-    }
+    // 2. Giả lập thời gian chờ 1.5 giây (1500ms) để nhìn cho chuyên nghiệp
+    setTimeout(() => {
+        currentUser = user;
+        localStorage.setItem('smartCurrentUser', user); 
+        loadUserData(); 
+        unlockApp();
+    }, 1500); 
+}
 
     function logoutApp() {
-        if(confirm("Bạn có chắc muốn đăng xuất?")) {
-            if(window.firebaseLogout) window.firebaseLogout();
+        vibrate();
+        localStorage.removeItem('smartCurrentUser');
+        currentUser = null;
+        shifts = [];
+        location.reload();
+    }
+
+    function handleChangePassword() {
+        vibrate();
+        const newPass = document.getElementById('newPasswordInput').value.trim();
+        if (!newPass) {
+            showToast('error', 'Vui lòng nhập mật khẩu mới!');
+            return;
+        }
+
+        let usersDB = JSON.parse(localStorage.getItem('smartUsers') || '{}');
+        if (currentUser && usersDB[currentUser]) {
+            usersDB[currentUser] = btoa(newPass);
+            localStorage.setItem('smartUsers', JSON.stringify(usersDB));
+            document.getElementById('newPasswordInput').value = '';
+            showToast('success', 'Đổi mật khẩu thành công!');
+        } else {
+            showToast('error', 'Lỗi không xác định!');
         }
     }
 
-    // --- DATA HANDLING ---
+    function unlockApp() {
+    loginScreen.style.opacity = '0';
+    
+    setTimeout(() => {
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'block';
+        
+        // 3. Ẩn loading screen sau khi App chính đã hiện lên
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+        }, 300); // Đợi hiệu ứng mờ dần kết thúc mới ẩn hẳn
+
+        updateAllViews();
+    }, 300);
+    
+    document.getElementById('workDate').valueAsDate = new Date();
+}
+
+    // --- DATA MANAGEMENT (ISOLATED) ---
     function loadUserData() {
-        if (!window.currentUser) return;
-        const key = `pro_data_${window.currentUser}`;
-        const data = JSON.parse(localStorage.getItem(key) || '{}');
+        if (!currentUser) return;
+        const dataKey = `smartData_${currentUser}`;
+        const data = JSON.parse(localStorage.getItem(dataKey) || '{}');
         
-        // Load Settings
+        shifts = data.shifts || [];
         document.getElementById('hourlyRate').value = data.rate || '';
-        document.getElementById('monthlyGoal').value = data.goal || '';
         document.getElementById('displayNameInput').value = data.displayName || '';
-        document.getElementById('displayUserName').innerText = data.displayName || window.currentUser;
-        
-        // Shifts are loaded from Cloud via window.shifts, fallback to local if needed
-        if(window.shifts.length === 0 && data.shifts) window.shifts = data.shifts;
+        document.getElementById('displayUserName').innerText = data.displayName || currentUser;
     }
 
     function saveSettings() {
-        const rate = document.getElementById('hourlyRate').value;
-        const goal = document.getElementById('monthlyGoal').value;
-        const name = document.getElementById('displayNameInput').value;
-        document.getElementById('displayUserName').innerText = name || window.currentUser;
-        
-        // Save local meta
-        const key = `pro_data_${window.currentUser}`;
-        const currentData = JSON.parse(localStorage.getItem(key) || '{}');
-        currentData.rate = rate;
-        currentData.goal = goal;
-        currentData.displayName = name;
-        localStorage.setItem(key, JSON.stringify(currentData));
-        
-        updateAllViews();
+        saveUserData();
+        document.getElementById('displayUserName').innerText = document.getElementById('displayNameInput').value || currentUser;
     }
 
-    // --- CORE FEATURES ---
-    function addShift() {
-        if(navigator.vibrate) navigator.vibrate(20);
-        
-        const date = document.getElementById('workDate').value;
-        const rate = parseFloat(document.getElementById('hourlyRate').value) || 0;
-        const note = document.getElementById('shiftNote').value;
-        
-        // Get Time
-        const sH = document.getElementById('startH').value, sM = document.getElementById('startM').value;
-        const eH = document.getElementById('endH').value, eM = document.getElementById('endM').value;
-        
-        // Get Type (Radio)
-        let type = 'norm';
-        document.getElementsByName('shiftType').forEach(r => { if(r.checked) type = r.value; });
-
-        if(!rate) { 
-            showToast('error', 'Chưa đặt mức lương!'); 
-            switchTab('tab-settings', document.querySelectorAll('.nav-btn')[3]); 
-            return; 
-        }
-
-        // Calc Hours
-        let start = parseFloat(sH) + parseFloat(sM)/60;
-        let end = parseFloat(eH) + parseFloat(eM)/60;
-        let hours = end - start;
-        if(hours < 0) hours += 24; // Overnight
-        hours = Math.round(hours * 100) / 100;
-
-        // Calc Salary Multiplier
-        let multiplier = 1;
-        if(type === 'ot') multiplier = 1.5;
-        if(type === 'night') multiplier = 1.3;
-        
-        const salary = hours * rate * multiplier;
-
-        const shift = {
-            id: Date.now(),
-            date,
-            start: `${sH}:${sM}`,
-            end: `${eH}:${eM}`,
-            hours,
-            salary,
-            type,
-            note
+    function saveUserData() {
+        if (!currentUser) return;
+        const dataKey = `smartData_${currentUser}`;
+        const data = {
+            shifts: shifts,
+            rate: document.getElementById('hourlyRate').value,
+            displayName: document.getElementById('displayNameInput').value
         };
-
-        window.shifts.push(shift);
-        
-        // Auto Sync
-        if(window.syncToCloud) window.syncToCloud();
-        
-        updateAllViews();
-        showToast('success', `Đã cộng ${salary.toLocaleString()}đ`);
+        localStorage.setItem(dataKey, JSON.stringify(data));
+        updateHeader(); 
     }
 
+    function initApp() {
+    const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0'));
+    const minutes = ['00', '15', '30', '45'];
+    
+    // Đổ dữ liệu cho các ô chọn Giờ
+    ['startH', 'endH'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+            sel.innerHTML = ''; // Làm sạch trước khi đổ
+            hours.forEach(h => {
+                sel.innerHTML += `<option value="${h}">${h}</option>`;
+            });
+            // Đặt giờ mặc định
+            if(id === 'startH') sel.value = "08"; 
+            if(id === 'endH') sel.value = "17";
+        }
+    });
+
+    // Đổ dữ liệu cho các ô chọn Phút
+    ['startM', 'endM'].forEach(id => {
+        const sel = document.getElementById(id);
+        if (sel) {
+            sel.innerHTML = '';
+            minutes.forEach(m => {
+                sel.innerHTML += `<option value="${m}">${m}</option>`;
+            });
+        }
+    });
+    
+    if (currentUser) loadUserData();
+    updateAllViews();
+}
+    function switchTab(tabId, btn) {
+        vibrate();
+        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        btn.classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function addShift() {
+        vibrate();
+        const date = document.getElementById('workDate').value;
+        const start = document.getElementById('startH').value + ':' + document.getElementById('startM').value;
+        const end = document.getElementById('endH').value + ':' + document.getElementById('endM').value;
+        const rate = parseFloat(document.getElementById('hourlyRate').value);
+
+        if (!rate) { showToast('error', '⚠️ Vui lòng nhập mức lương!'); switchTab('tab-settings', document.querySelectorAll('.nav-btn')[3]); return; }
+        if (!date) { showToast('error', 'Vui lòng chọn ngày!'); return; }
+
+        const startDate = new Date(`2000-01-01T${start}`);
+        const endDate = new Date(`2000-01-01T${end}`);
+        let diff = (endDate - startDate) / 1000 / 60 / 60;
+        if (diff < 0) diff += 24; 
+        
+        const hoursWorked = Math.round(diff * 100) / 100;
+        const salary = hoursWorked * rate;
+
+        const shift = { id: Date.now(), date, start, end, hours: hoursWorked, salary: salary };
+
+        shifts.push(shift);
+        saveUserData(); 
+        updateAllViews();
+        showToast('success', 'Đã chấm công thành công!');
+    }
+
+    let itemToDelete = null;
     function confirmDelete(id) {
-        showModal('Xóa bản ghi này?', () => {
-            window.shifts = window.shifts.filter(s => s.id !== id);
-            if(window.syncToCloud) window.syncToCloud();
+        vibrate();
+        itemToDelete = id;
+        showModal('Bạn có chắc muốn xóa ca làm việc này?', () => {
+            shifts = shifts.filter(s => s.id !== itemToDelete);
+            saveUserData();
+            
+            // --- FIX: Đồng bộ ngay lập tức sau khi xóa ---
+            if (typeof window.syncShiftsToCloud === 'function') {
+                window.syncShiftsToCloud();
+            }
+
             updateAllViews();
-            showToast('success', 'Đã xóa!');
+            showToast('success', 'Đã xóa thành công!');
         });
     }
 
     function confirmClear() {
-        if(window.shifts.length === 0) return;
-        showModal('Xóa toàn bộ lịch sử?', () => {
-            window.shifts = [];
-            if(window.syncToCloud) window.syncToCloud();
+        vibrate();
+        if(shifts.length === 0) return;
+        showModal('Toàn bộ dữ liệu của bạn sẽ bị xóa?', () => {
+            shifts = [];
+            saveUserData();
+
+            // --- FIX: Đồng bộ ngay lập tức sau khi xóa ---
+            if (typeof window.syncShiftsToCloud === 'function') {
+                window.syncShiftsToCloud();
+            }
+
             updateAllViews();
             showToast('success', 'Đã làm sạch dữ liệu!');
         });
     }
 
-    // --- VISUALIZATION ---
+    // --- VIEW RENDERING ---
     function updateAllViews() {
         renderHistory();
-        renderTable();
-        updateStats();
-        renderChart();
+        renderExcelTable();
+        updateHeader();
     }
 
     function renderHistory() {
         const list = document.getElementById('historyList');
-        const empty = document.getElementById('emptyState');
+        const emptyState = document.getElementById('emptyState');
         list.innerHTML = '';
-        
-        if(window.shifts.length === 0) { empty.style.display = 'block'; return; }
-        empty.style.display = 'none';
+        let totalHours = 0;
+        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-        // Sort descending
-        const sorted = [...window.shifts].sort((a,b) => new Date(b.date) - new Date(a.date));
+        if (sortedShifts.length === 0) emptyState.style.display = 'block';
+        else emptyState.style.display = 'none';
 
-        sorted.forEach(s => {
-            const d = new Date(s.date);
-            
-            // Badge Style
-            let badgeClass = 'badge-norm';
-            let badgeText = 'Thường';
-            if(s.type === 'ot') { badgeClass = 'badge-ot'; badgeText = 'Tăng ca'; }
-            if(s.type === 'night') { badgeClass = 'badge-ot'; badgeText = 'Ca đêm'; }
-
+        sortedShifts.forEach(shift => {
+            totalHours += shift.hours;
+            const d = new Date(shift.date);
             const li = document.createElement('li');
             li.className = 'history-item';
             li.innerHTML = `
-                <div class="history-date">
-                    <span style="font-size:1.2rem">${d.getDate()}</span>
-                    <span style="font-size:0.7rem; text-transform:uppercase">T${d.getMonth()+1}</span>
+                <div class="date-badge"><span>${d.getDate()}</span><span>Th${d.getMonth() + 1}</span></div>
+                <div class="item-info">
+                    <div class="item-time">${shift.start} - ${shift.end} <span class="item-duration">${shift.hours}h</span></div>
+                    <span class="item-money">+${formatMoney(shift.salary)}</span>
                 </div>
-                <div style="flex:1">
-                    <div style="font-weight:700; font-size:0.95rem; margin-bottom:2px;">
-                        ${s.start} - ${s.end}
-                        <span class="badge ${badgeClass}">${badgeText}</span>
-                    </div>
-                    <div style="font-size:0.8rem; color:var(--text-sub);">${s.note || 'Không ghi chú'}</div>
-                    <div style="font-weight:700; color:var(--success); margin-top:2px;">+${s.salary.toLocaleString()}đ</div>
-                </div>
-                <button onclick="confirmDelete(${s.id})" style="background:none; border:none; color:var(--danger); cursor:pointer; padding:10px;"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn btn-icon" style="background: #FEE2E2; color: #EF4444;" onclick="confirmDelete(${shift.id})"><i class="fa-solid fa-trash-can"></i></button>
             `;
             list.appendChild(li);
         });
+        document.getElementById('quickTotalHours').innerText = totalHours.toFixed(1) + 'h';
+        document.getElementById('quickTotalShifts').innerText = shifts.length;
     }
 
-    function renderTable() {
+    function renderExcelTable() {
         const tbody = document.getElementById('excelTableBody');
-        tbody.innerHTML = window.shifts.map(s => {
-            let typeName = s.type === 'ot' ? 'Tăng ca' : (s.type === 'night' ? 'Đêm' : 'Thường');
-            return `<tr>
-                <td>${s.date.split('-').reverse().join('/')}</td>
-                <td>${s.hours}h</td>
-                <td>${typeName}</td>
-                <td style="font-weight:bold; color:var(--success)">${s.salary.toLocaleString()}</td>
-            </tr>`;
-        }).join('');
-    }
+        tbody.innerHTML = '';
+        const sortedShifts = [...shifts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-    function updateStats() {
-        const totalH = window.shifts.reduce((acc, s) => acc + s.hours, 0);
-        const totalS = window.shifts.reduce((acc, s) => acc + s.salary, 0);
-        const goal = parseFloat(document.getElementById('monthlyGoal').value) || 10000000; // Default 10tr goal
-
-        document.getElementById('quickTotalHours').innerText = totalH.toFixed(1) + 'h';
-        document.getElementById('quickTotalShifts').innerText = window.shifts.length;
-        document.getElementById('headerTotalSalary').innerText = totalS.toLocaleString() + 'đ';
-
-        // Progress Bar Logic
-        let percent = (totalS / goal) * 100;
-        if(percent > 100) percent = 100;
-        document.getElementById('incomeProgressBar').style.width = percent + '%';
-        document.getElementById('goalPercentage').innerText = `${Math.round(percent)}% mục tiêu (${goal.toLocaleString()}đ)`;
-    }
-
-    function renderChart() {
-        const ctx = document.getElementById('incomeChart');
-        if(!ctx) return;
-        
-        // Prepare Data: Last 7 days
-        const labels = [];
-        const data = [];
-        
-        for(let i=6; i>=0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            const dateStr = d.toISOString().split('T')[0];
-            labels.push(d.getDate() + '/' + (d.getMonth()+1));
-            
-            const daySalary = window.shifts
-                .filter(s => s.date === dateStr)
-                .reduce((sum, s) => sum + s.salary, 0);
-            data.push(daySalary);
+        if (sortedShifts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#999;">Trống</td></tr>';
+            return;
         }
 
-        if(window.chartInstance) window.chartInstance.destroy();
-        
-        window.chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Thu nhập (VNĐ)',
-                    data: data,
-                    borderColor: '#4F46E5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                    borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
-                    pointBackgroundColor: '#ec4899'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { display: false } },
-                    y: { beginAtZero: true, grid: { color: '#e5e7eb' } }
-                }
-            }
+        sortedShifts.forEach(shift => {
+            const row = `
+                <tr>
+                    <td>${formatDate(shift.date)}</td>
+                    <td>${shift.start}</td>
+                    <td>${shift.end}</td>
+                    <td>${shift.hours}</td>
+                    <td>${formatMoney(shift.salary)}</td>
+                </tr>
+            `;
+            tbody.innerHTML += row;
         });
     }
 
+    // --- IMPROVED EXPORT TO CSV (WITH BOM FOR EXCEL UTF-8) ---
     function exportToCSV() {
-        if(window.shifts.length === 0) return showToast('error', 'Không có dữ liệu!');
-        let csv = "\uFEFFNgày,Bắt đầu,Kết thúc,Số giờ,Loại,Ghi chú,Lương\n";
-        window.shifts.forEach(s => {
-            csv += `${s.date},${s.start},${s.end},${s.hours},${s.type},"${s.note}",${s.salary}\n`;
+        if(shifts.length === 0) { showToast('error', 'Chưa có dữ liệu để xuất!'); return; }
+        
+        // Thêm BOM \uFEFF để Excel nhận diện UTF-8
+        let csvContent = "\uFEFF"; 
+        csvContent += "Ngày,Giờ Vào,Giờ Ra,Số Giờ,Lương\n";
+        
+        shifts.forEach(shift => {
+            // Định dạng lại tiền tệ cho dễ nhìn trong Excel (bỏ dấu chấm)
+            const cleanSalary = shift.salary; 
+            const row = `${formatDate(shift.date)},${shift.start},${shift.end},${shift.hours},${cleanSalary}`;
+            csvContent += row + "\n";
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `Bang_Luong_${window.currentUser}.csv`;
+        link.setAttribute("href", url);
+        link.setAttribute("download", `bang_cong_${currentUser || 'data'}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        showToast('success', 'Đã tải file Excel!');
+        
+        showToast('success', 'Đã tải xuống file CSV (Excel)!');
     }
 
-    // --- HELPERS ---
-    function showToast(type, msg) {
-        const t = document.createElement('div');
-        t.className = `toast ${type} show`;
-        t.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-triangle-exclamation'}"></i> ${msg}`;
-        document.getElementById('toast-container').appendChild(t);
-        setTimeout(() => t.remove(), 3000);
+    function updateHeader() {
+        const total = shifts.reduce((sum, s) => sum + s.salary, 0);
+        document.getElementById('headerTotalSalary').innerText = formatMoney(total);
     }
 
-    function switchTab(id, btn) {
-        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        btn.classList.add('active');
-        window.scrollTo(0,0);
-        if(id === 'tab-checkin') renderChart(); // Redraw chart to fit size
+    // Helper functions
+    function formatMoney(amount) {
+        return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' }).replace('₫', '');
+    }
+    function formatDate(dateString) {
+        const [year, month, day] = dateString.split('-');
+        return `${day}/${month}/${year}`;
+    }
+    function vibrate() { if (navigator.vibrate) navigator.vibrate(10); }
+
+    function showToast(type, message) {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = type === 'success' ? `<i class="fa-solid fa-circle-check"></i> ${message}` : `<i class="fa-solid fa-circle-exclamation"></i> ${message}`;
+        container.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
     }
 
-    function showModal(msg, callback) {
-        document.getElementById('modalMessage').innerText = msg;
-        document.getElementById('confirmModal').style.display = 'flex';
-        document.getElementById('confirmBtnAction').onclick = () => { callback(); closeModal(); };
+    const modal = document.getElementById('confirmModal');
+    const modalMsg = document.getElementById('modalMessage');
+    const confirmBtn = document.getElementById('confirmBtnAction');
+    function showModal(message, actionCallback) {
+        modalMsg.innerText = message;
+        modal.style.display = 'flex';
+        confirmBtn.onclick = () => { actionCallback(); closeModal(); };
     }
-    function closeModal() { document.getElementById('confirmModal').style.display = 'none'; }
-    function handleChangePassword() { showToast('success', 'Tính năng đang bảo trì (Demo)'); }
+    function closeModal() { modal.style.display = 'none'; confirmBtn.onclick = null; }
+    window.onclick = function(event) { if (event.target == modal) closeModal(); }
 
-    // --- INIT ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // Init Time Selects
-        const hSel = ['startH', 'endH'];
-        const mSel = ['startM', 'endM'];
-        hSel.forEach(id => { for(let i=0;i<24;i++) document.getElementById(id).innerHTML+=`<option value="${i}">${i.toString().padStart(2,'0')}</option>`; });
-        mSel.forEach(id => { for(let i=0;i<60;i+=15) document.getElementById(id).innerHTML+=`<option value="${i}">${i.toString().padStart(2,'0')}</option>`; });
-        document.getElementById('startH').value = 8;
-        document.getElementById('endH').value = 17;
 
-        // Check Login
-        const u = localStorage.getItem('smartCurrentUser');
-        if(u) {
-            window.currentUser = u;
-            loadUserData();
-            unlockApp();
-        }
-    });
 </script>
-
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    // Triệu hồi các phần tử DOM cho Module
+const loader = document.getElementById('loading-overlay');
 
-    const firebaseConfig = { apiKey: "AIzaSyCC6Wpc6CcILRGII8ON8cHiUflJWAzjHu0", authDomain: "pro-timekeeper.firebaseapp.com", projectId: "pro-timekeeper", storageBucket: "pro-timekeeper.firebasestorage.app", messagingSenderId: "662214462453", appId: "1:662214462453:web:7ff481b7e84f14de4baebc" };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-    const loader = document.getElementById('loading-overlay');
-
-    window.syncToCloud = async () => {
-        if (!auth.currentUser) return;
-        try {
-            await setDoc(doc(db, "users", auth.currentUser.uid), { 
-                shifts: window.shifts,
-                lastUpdate: new Date().toISOString()
-            }, { merge: true });
-        } catch(e) { console.error(e); }
-    };
-
-    window.firebaseAuthAction = async (u, p) => {
+// Định nghĩa hàm hiển thị loading
+window.showLoading = () => {
+    if (loader) {
         loader.style.display = 'flex';
-        const email = u + "@pro.com";
-        try {
-            if (window.isRegisterMode) await createUserWithEmailAndPassword(auth, email, p);
-            else await signInWithEmailAndPassword(auth, email, p);
-        } catch (e) {
-            loader.style.display = 'none';
-            let msg = 'Lỗi không xác định';
-            if(e.code.includes('password')) msg = 'Sai mật khẩu!';
-            if(e.code.includes('found')) msg = 'Không tìm thấy tài khoản!';
-            if(e.code.includes('in-use')) msg = 'Tài khoản đã tồn tại!';
-            const t = document.createElement('div'); t.className = 'toast error show'; t.innerHTML = msg; 
-            document.getElementById('toast-container').appendChild(t); setTimeout(()=>t.remove(),3000);
-        }
-    };
+        // Ép trình duyệt render lại trước khi đổi opacity để có hiệu ứng mượt
+        setTimeout(() => loader.style.opacity = '1', 10);
+    }
+};
 
-    window.firebaseLogout = () => {
-        signOut(auth).then(() => {
-            localStorage.removeItem('smartCurrentUser');
-            location.reload();
-        });
-    };
-
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            window.currentUser = user.email.split('@')[0];
-            localStorage.setItem('smartCurrentUser', window.currentUser);
-            const snap = await getDoc(doc(db, "users", user.uid));
-            if (snap.exists()) {
-                window.shifts = snap.data().shifts || [];
-            }
-            // Gọi hàm global để refresh UI
-            if(typeof window.unlockApp === 'function') {
-                // Chúng ta không gọi unlockApp ở đây vì nó sẽ chạy đè lên animation
-                // Chỉ cần update data nếu app đã mở
-                if(document.getElementById('main-app').style.display === 'block') {
-                    window.updateAllViews();
-                } else {
-                    window.unlockApp(); // Lần đầu mở
-                }
-            }
+// Định nghĩa hàm ẩn loading
+window.hideLoading = () => {
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => {
             loader.style.display = 'none';
+        }, 300); // Đợi 0.3s khớp với transition trong CSS
+    }
+};
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = { 
+      apiKey: "AIzaSyCC6Wpc6CcILRGII8ON8cHiUflJWAzjHu0", 
+      authDomain: "pro-timekeeper.firebaseapp.com", 
+      projectId: "pro-timekeeper", 
+      storageBucket: "pro-timekeeper.firebasestorage.app", 
+      messagingSenderId: "662214462453", 
+      appId: "1:662214462453:web:7ff481b7e84f14de4baebc", 
+      measurementId: "G-2E62GB1MJK" 
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // --- ĐỒNG BỘ LÊN CLOUD ---
+  window.syncShiftsToCloud = async () => {
+    if (!auth.currentUser) return;
+    try {
+      const userRef = doc(db, "users", auth.currentUser.uid);
+      await setDoc(userRef, { 
+        shifts: shifts,
+        lastUpdate: new Date()
+      }, { merge: true });
+    } catch (e) {
+      console.error("Lỗi đồng bộ:", e);
+    }
+  };
+
+  window.syncShiftsFromCloud = async () => {
+    if (!auth.currentUser) return;
+    try {
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        const docSnap = await getDoc(userRef);
+        
+        if (docSnap.exists()) {
+            const cloudData = docSnap.data();
+            // Gán trực tiếp vào biến shifts toàn cục
+            shifts = cloudData.shifts || []; 
+            // Cập nhật giao diện ngay lập tức
+            if (typeof updateAllViews === "function") updateAllViews(); 
         }
+    } catch (e) {
+        console.error("Lỗi tải dữ liệu từ Cloud:", e);
+    }
+};
+  window.handleAuthAction = async () => {
+    if (typeof vibrate === "function") vibrate();
+    const userVal = document.getElementById('authUsername').value.trim();
+    const pass = document.getElementById('authPassword').value;
+    
+    if (!userVal || !pass) return showToast('error', 'Vui lòng nhập đủ thông tin!');
+
+    const email = userVal + "@pro.com";
+    if (typeof showLoading === "function") showLoading(); 
+
+    try {
+      if (isRegisterMode) {
+        // Kiểm tra xác nhận mật khẩu trước khi gửi lên Firebase
+        const confirmPass = document.getElementById('authConfirmPass').value;
+        if (pass !== confirmPass) {
+            if (typeof hideLoading === "function") hideLoading();
+            return showToast('error', 'Mật khẩu nhập lại không khớp!');
+        }
+        
+        await createUserWithEmailAndPassword(auth, email, pass);
+        showToast('success', 'Đăng ký thành công!');
+      } else {
+        await signInWithEmailAndPassword(auth, email, pass);
+        showToast('success', 'Chào mừng quay trở lại!');
+      }
+    } catch (error) {
+      if (typeof hideLoading === "function") hideLoading();
+      
+      // Xử lý từng mã lỗi cụ thể của Firebase
+      let message = 'Đã xảy ra lỗi không xác định!';
+      
+      switch (error.code) {
+        case 'auth/email-already-in-use':
+          message = 'Tên tài khoản này đã có người sử dụng!';
+          break;
+        case 'auth/weak-password':
+          message = 'Mật khẩu phải có ít nhất 6 ký tự!';
+          break;
+        case 'auth/invalid-email':
+          message = 'Tên tài khoản chứa ký tự không hợp lệ!';
+          break;
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-credential':
+          message = 'Tài khoản hoặc mật khẩu không chính xác!';
+          break;
+        default:
+          message = error.message;
+      }
+      
+      showToast('error', message);
+    }
+};
+
+  // Lắng nghe trạng thái đăng nhập
+ onAuthStateChanged(auth, async (user) => {
+    if (user) {
+        window.currentUser = user.email.split('@')[0];
+        localStorage.setItem('smartCurrentUser', window.currentUser);
+        
+        showLoading(); // Hiện xoay tròn để chờ tải
+        
+        // 1. Tải dữ liệu từ mây về trước
+        await syncShiftsFromCloud(); 
+        
+        // 2. Sau khi có dữ liệu mới mở App
+        unlockApp(); 
+        hideLoading();
+    }
+});
+  window.logoutApp = () => {
+    signOut(auth).then(() => {
+        localStorage.removeItem('smartCurrentUser');
+        location.reload();
     });
+  };
+
+  // Ghi đè hàm addShift để tự động lưu
+  const oldAddShift = window.addShift;
+  window.addShift = () => {
+      if (typeof oldAddShift === "function") oldAddShift();
+      window.syncShiftsToCloud();
+  };
 </script>
 </body>
 </html>
